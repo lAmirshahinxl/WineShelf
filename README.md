@@ -28,6 +28,20 @@ WineShelf helps you set up Wine and Steam, organize Windows apps, and launch the
 
 The released app is a universal arm64 and x86_64 build. The Wine build offered by WineShelf is x86_64. Windows game compatibility varies by title, Wine behavior, graphics settings, and game-specific protections; not every game will run.
 
+## Counter-Strike 2 FPS reports
+
+These are individual community reports, not WineShelf benchmarks. The tests use different wrappers, macOS versions, maps, settings, and measurement methods, so read them as examples rather than a direct ranking or a performance guarantee. Two reports for the M2 MacBook Air show how much results can vary with setup and test conditions.
+
+| Mac | Reported FPS | Test details | Source |
+| --- | ---: | --- | --- |
+| Base M2 MacBook Air, 8 GB | About 100 FPS; some maps lower | GameToMac; macOS 26.7; user reports Dust and most maps. | [Community report](https://www.reddit.com/r/cs2/comments/1wsc8hk/how_rare_is_this/) |
+| M2 MacBook Air, configuration not stated | 30–40 FPS; about 15 ms frame time | GameToMac at the lowest settings. | [Community report](https://www.reddit.com/r/macgaming/comments/1wd02i4/cs2_on_mac/) |
+| 14-inch MacBook Pro, M1 Pro, 16 GB | 75–115 FPS online | CrossOver 26.3 with DXMT and MSync; macOS 26.0; 1512 × 945. The user reported 24–32 ms frame times online. | [Community report](https://www.reddit.com/r/macgaming/comments/1waxdn9/cs2_crossover_inconsistent_frame_times/) |
+| Base M4 Mac mini | 90–120 FPS | CrossOver with CXPatcher, after a patch; exact settings and test scene were not stated. | [Community report](https://www.reddit.com/r/macgaming/comments/1tni5zl/m4_mac_mini_base_crossover_patched/) |
+| MacBook Pro, M2 Pro, 32 GB | 127.9 FPS in a reported 1,000-frame window | Separate Wine + DXMT + MSync setup; Ancient benchmark map, low settings. This uses a different stack from WineShelf's managed Wine build. | [Measured-results project](https://github.com/piwas-21/cs2-apple-silicon) |
+
+Average FPS alone does not describe smoothness. Frame times, map, resolution, graphics settings, FPS cap, game build, wrapper, and heat can all change the result. For a useful report, include your exact Mac chip and memory, macOS version, Wine or CrossOver setup, map, resolution, graphics preset, and both FPS and frame-time readings.
+
 ## Download and install
 
 1. Download the latest `.dmg` from [GitHub Releases](https://github.com/lAmirshahinxl/WineShelf/releases).
