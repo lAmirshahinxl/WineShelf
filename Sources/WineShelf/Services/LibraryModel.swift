@@ -13,6 +13,7 @@ final class LibraryModel: ObservableObject {
 
     private var processes: [UUID: Process] = [:]
     private let fileManager = FileManager.default
+    private let pendingSteamGamesKey = "WineShelf.pendingSteamGameInstalls"
 
     private var supportDirectory: URL {
         fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -47,6 +48,7 @@ final class LibraryModel: ObservableObject {
         } catch {
             errorMessage = "WineShelf couldn't read its library. The saved file is still available at:\n\(libraryURL.path)\n\n\(error.localizedDescription)"
         }
+        removeUninstalledSteamGameShortcuts()
     }
 
     func add(_ entry: GameEntry) {
@@ -62,38 +64,90 @@ final class LibraryModel: ObservableObject {
     }
 
     func steamGameEntry(for game: SteamGame) -> GameEntry? {
-        guard let steamEntry else { return nil }
+        guard let appID = game.appID, let steamEntry else { return nil }
         return entries.first {
             $0.executablePath == steamEntry.executablePath
                 && $0.prefixPath == steamEntry.prefixPath
-                && $0.arguments == ["-applaunch", game.appID]
+                && $0.arguments == ["-applaunch", appID]
         }
     }
 
     func isSteamGameInstalled(_ game: SteamGame) -> Bool {
-        guard let steamEntry else { return false }
-        let manifest = steamEntry.prefixURL.appendingPathComponent(
-            "drive_c/Program Files (x86)/Steam/steamapps/appmanifest_\(game.appID).acf"
+        guard let appID = game.appID, let steamEntry else { return false }
+        let steamApps = steamEntry.prefixURL.appendingPathComponent(
+            "drive_c/Program Files (x86)/Steam/steamapps",
+            isDirectory: true
         )
+        let manifest = steamApps.appendingPathComponent("appmanifest_\(appID).acf")
         guard let contents = try? String(contentsOf: manifest, encoding: .utf8),
-              let flagsLine = contents.split(whereSeparator: \.isNewline).first(where: { $0.contains("\"StateFlags\"") }) else {
+              manifestValue("appid", in: contents) == appID,
+              let stateFlags = manifestValue("StateFlags", in: contents).flatMap(Int.init),
+              stateFlags == 4,
+              let installDirectory = manifestValue("installdir", in: contents),
+              !installDirectory.isEmpty,
+              installDirectory != ".",
+              installDirectory != "..",
+              !installDirectory.contains("/") else {
             return false
         }
-        let fields = flagsLine.split(separator: "\"")
-        guard fields.count > 3, let flags = Int(fields[3]) else { return false }
-        return flags & 4 != 0
+
+        if let bytesToDownload = manifestValue("BytesToDownload", in: contents).flatMap(Int64.init), bytesToDownload > 0 {
+            return false
+        }
+
+        let gameDirectory = steamApps.appendingPathComponent("common", isDirectory: true)
+            .appendingPathComponent(installDirectory, isDirectory: true)
+        guard let files = try? fileManager.contentsOfDirectory(atPath: gameDirectory.path) else { return false }
+        return !files.isEmpty
     }
 
-    func installSteamGame(_ game: SteamGame) {
+    func isSteamGamePendingInstall(_ game: SteamGame) -> Bool {
+        game.appID.map(pendingSteamGameIDs.contains) ?? false
+    }
+
+    func refreshPendingSteamGameInstalls(_ games: [SteamGame]) {
+        var pending = pendingSteamGameIDs
+        var installedGames: [SteamGame] = []
+
+        for game in games {
+            guard let appID = game.appID, pending.contains(appID), isSteamGameInstalled(game) else { continue }
+            if steamGameEntry(for: game) == nil, let steamEntry {
+                add(steamGameShortcut(for: game, appID: appID, steamEntry: steamEntry))
+            }
+            pending.remove(appID)
+            installedGames.append(game)
+        }
+
+        guard pending != pendingSteamGameIDs else { return }
+        UserDefaults.standard.set(Array(pending).sorted(), forKey: pendingSteamGamesKey)
+
+        if !installedGames.isEmpty {
+            let names = installedGames.map(\.name).joined(separator: ", ")
+            notice = installedGames.count == 1
+                ? "\(names) finished installing and is ready in your WineShelf library."
+                : "\(names) finished installing and are ready in your WineShelf library."
+        }
+    }
+
+    func openSteamGamePage(_ game: SteamGame) {
+        guard let appID = game.appID else {
+            errorMessage = "This profile does not have a Steam app ID. Choose its listed storefront instead."
+            return
+        }
         guard let steamEntry else {
-            errorMessage = "Install Steam from Wine Setup before installing games."
+            errorMessage = "Install Steam from Wine Setup before opening Steam game pages."
+            return
+        }
+
+        if isSteamGameInstalled(game) {
+            addSteamGameShortcut(game)
             return
         }
 
         var installRequest = steamEntry
         installRequest.id = UUID()
-        installRequest.name = "Install \(game.name)"
-        installRequest.arguments = ["steam://install/\(game.appID)"]
+        installRequest.name = "Open \(game.name) in Steam"
+        installRequest.arguments = ["steam://store/\(appID)"]
 
         do {
             let requestID = installRequest.id
@@ -103,21 +157,25 @@ final class LibraryModel: ObservableObject {
                 }
             }
             processes[requestID] = process
-
-            if let existing = steamGameEntry(for: game) {
-                selectedID = existing.id
-            } else {
-                add(steamGameShortcut(for: game, steamEntry: steamEntry))
-            }
-            notice = "Steam opened the install page for \(game.name). Complete the download in Steam, then launch it from your WineShelf library."
+            pendingSteamGameIDs.insert(appID)
+            UserDefaults.standard.set(Array(pendingSteamGameIDs).sorted(), forKey: pendingSteamGamesKey)
+            notice = "Steam opened the page for \(game.name). Check that this account has access to the edition, then start or continue its install in Steam. WineShelf will add it after the install finishes."
         } catch {
             errorMessage = "WineShelf couldn't open Steam for \(game.name):\n\(error.localizedDescription)"
         }
     }
 
     func addSteamGameShortcut(_ game: SteamGame) {
+        guard game.appID != nil else {
+            errorMessage = "This profile does not have a Steam app ID. Choose its listed storefront instead."
+            return
+        }
         guard let steamEntry else {
             errorMessage = "Install Steam from Wine Setup before adding a game shortcut."
+            return
+        }
+        guard isSteamGameInstalled(game) else {
+            errorMessage = "Steam hasn't finished installing \(game.name) yet. Finish the download and let Steam verify the files first."
             return
         }
         if let existing = steamGameEntry(for: game) {
@@ -125,7 +183,8 @@ final class LibraryModel: ObservableObject {
             notice = "\(game.name) is already in your WineShelf library."
             return
         }
-        add(steamGameShortcut(for: game, steamEntry: steamEntry))
+        guard let appID = game.appID else { return }
+        add(steamGameShortcut(for: game, appID: appID, steamEntry: steamEntry))
         notice = "Added \(game.name) to your WineShelf library."
     }
 
@@ -232,15 +291,51 @@ final class LibraryModel: ObservableObject {
             .appendingPathComponent("\(entry.id.uuidString).log")
     }
 
-    private func steamGameShortcut(for game: SteamGame, steamEntry: GameEntry) -> GameEntry {
+    private func steamGameShortcut(for game: SteamGame, appID: String, steamEntry: GameEntry) -> GameEntry {
         GameEntry(
             name: game.name,
             executablePath: steamEntry.executablePath,
             prefixPath: steamEntry.prefixPath,
             winePath: steamEntry.winePath,
             wineServerPath: steamEntry.wineServerPath,
-            arguments: ["-applaunch", game.appID]
+            arguments: ["-applaunch", appID]
         )
+    }
+
+    private var pendingSteamGameIDs: Set<String> {
+        get { Set(UserDefaults.standard.stringArray(forKey: pendingSteamGamesKey) ?? []) }
+        set { UserDefaults.standard.set(Array(newValue).sorted(), forKey: pendingSteamGamesKey) }
+    }
+
+    private func manifestValue(_ key: String, in contents: String) -> String? {
+        for line in contents.split(whereSeparator: \.isNewline) {
+            let fields = line.split(separator: "\"", omittingEmptySubsequences: false)
+            guard fields.count >= 4, String(fields[1]) == key else { continue }
+            return String(fields[3]).trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        return nil
+    }
+
+    private func removeUninstalledSteamGameShortcuts() {
+        guard let steamEntry else { return }
+        let staleEntryIDs = entries.compactMap { entry -> UUID? in
+            guard entry.executablePath == steamEntry.executablePath,
+                  entry.prefixPath == steamEntry.prefixPath,
+                  entry.arguments.count == 2,
+                  entry.arguments[0] == "-applaunch",
+                  let game = SteamGameCatalog.game(appID: entry.arguments[1]),
+                  !isSteamGameInstalled(game) else {
+                return nil
+            }
+            return entry.id
+        }
+        guard !staleEntryIDs.isEmpty else { return }
+
+        entries.removeAll { staleEntryIDs.contains($0.id) }
+        if let currentSelectedID = selectedID, staleEntryIDs.contains(currentSelectedID) {
+            selectedID = entries.first?.id
+        }
+        persist()
     }
 
     private func processFinished(id: UUID, status: Int32) {
