@@ -112,7 +112,7 @@ dist/WineShelf-0.4.0-universal.dmg
 
 Local builds are ad-hoc signed by default. For direct distribution, sign with a **Developer ID Application** identity and notarize the app and disk image with Apple's notary service. Set `CODESIGN_IDENTITY` to the identity's full name to enable hardened runtime and secure timestamps.
 
-Website assets are in [`Assets/Branding/`](Assets/Branding/): the original logo, README banner, 512 px and 192 px icons, Apple touch icon, and 32 px favicon.
+Website assets are in [`Assets/Branding/`](Assets/Branding/): the app logo, README banner, 512 px and 192 px icons, Apple touch icon, and 32 px favicon.
 
 ## 🔗 Runtime sources
 
