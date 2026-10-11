@@ -23,8 +23,21 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           version="${GITHUB_REF_NAME#v}"
-          gh release create "$GITHUB_REF_NAME" \
-            "dist/WineShelf-$version-universal.zip" \
-            --title "WineShelf $version" \
-            --notes-file .github/release-notes.md \
-            --prerelease
+          asset="dist/WineShelf-$version-universal.dmg"
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            assets="$(gh release view "$GITHUB_REF_NAME" --json assets --jq '.assets[].name')"
+            if grep -Fxq "WineShelf-$version-universal.zip" <<< "$assets"; then
+              gh release delete-asset "$GITHUB_REF_NAME" "WineShelf-$version-universal.zip" --yes
+            fi
+            gh release upload "$GITHUB_REF_NAME" "$asset" --clobber
+            gh release edit "$GITHUB_REF_NAME" \
+              --title "WineShelf $version" \
+              --notes-file .github/release-notes.md \
+              --prerelease
+          else
+            gh release create "$GITHUB_REF_NAME" \
+              "$asset" \
+              --title "WineShelf $version" \
+              --notes-file .github/release-notes.md \
+              --prerelease
+          fi

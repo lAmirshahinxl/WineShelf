@@ -4,7 +4,7 @@ WineShelf is a macOS library for installing and managing Wine runtimes, Windows 
 
 ## Download
 
-Download the latest WineShelf ZIP from [GitHub Releases](https://github.com/lAmirshahinxl/WineShelf/releases), unzip it, and move `WineShelf.app` to Applications. This beta is not signed with a Developer ID certificate or notarized. The first launch may require Control-clicking WineShelf in Finder, choosing **Open**, and confirming the macOS prompt.
+Download the latest WineShelf `.dmg` from [GitHub Releases](https://github.com/lAmirshahinxl/WineShelf/releases), open it, and drag `WineShelf.app` to the Applications shortcut in the disk image. This beta is not signed with a Developer ID certificate or notarized. The first launch may require Control-clicking WineShelf in Finder, choosing **Open**, and confirming the macOS prompt.
 
 ## First-time setup
 
@@ -39,7 +39,9 @@ Requirements: macOS 14 or later and Xcode Command Line Tools with Swift 6.
 ./build-app.sh
 ```
 
-The script builds arm64 and x86_64 release binaries, combines them into a universal `WineShelf.app`, and creates `dist/WineShelf-0.2.0-universal.zip`. By default, it ad-hoc signs the app for local testing. For direct public distribution, configure a **Developer ID Application** identity and notarize the final archive with Apple's notary service. Set `CODESIGN_IDENTITY` to the identity's full name to sign with hardened runtime and a secure timestamp.
+The script builds arm64 and x86_64 release binaries, combines them into a universal `WineShelf.app`, creates its macOS icon from `Assets/Branding/WineShelf-Logo.png`, and packages the app with an Applications shortcut in `dist/WineShelf-0.2.0-universal.dmg`. By default, it ad-hoc signs the app for local testing. For direct public distribution, configure a **Developer ID Application** identity and notarize the app and final disk image with Apple's notary service. Set `CODESIGN_IDENTITY` to the identity's full name to sign with hardened runtime and a secure timestamp.
+
+The selected logo is saved at `Assets/Branding/WineShelf-Logo.png` and can also be used on the project website. Smaller web icon sizes are included alongside it.
 
 ## Runtime sources
 
