@@ -35,19 +35,21 @@ WineShelf is a native macOS app for managing Wine runtimes, Steam, Windows apps,
 
 The released app is a universal arm64 and x86_64 build. The managed Wine build is x86_64. Game compatibility and performance vary by title, Wine behavior, graphics settings, and game-specific protections; not every game will run.
 
-## 🎮 Counter-Strike 2 FPS reports
+## 🎮 Steam game FPS reports
 
-These are individual reports from the community, not WineShelf benchmarks. The tests use different wrappers, macOS versions, maps, settings, and measurement methods, so treat them as examples rather than a direct ranking or a performance guarantee. The two M2 Air reports show how much results can vary with setup and test conditions.
+These are short community reports from Wine-based setups, mostly CrossOver. They are not WineShelf benchmarks, so actual results in WineShelf can differ. Settings and conditions vary; the sources provide context.
 
-| Mac | Reported FPS | Test details | Source |
-| --- | ---: | --- | --- |
-| Base M2 MacBook Air, 8 GB | About 100 FPS; some maps lower | GameToMac; macOS 26.7; user reports Dust and most maps. | [Community report](https://www.reddit.com/r/cs2/comments/1wsc8hk/how_rare_is_this/) |
-| M2 MacBook Air, configuration not stated | 30–40 FPS; about 15 ms frame time | GameToMac at the lowest settings. | [Community report](https://www.reddit.com/r/macgaming/comments/1wd02i4/cs2_on_mac/) |
-| 14-inch MacBook Pro, M1 Pro, 16 GB | 75–115 FPS online | CrossOver 26.3 with DXMT and MSync; macOS 26.0; 1512 × 945. The user reported 24–32 ms frame times online. | [Community report](https://www.reddit.com/r/macgaming/comments/1waxdn9/cs2_crossover_inconsistent_frame_times/) |
-| Base M4 Mac mini | 90–120 FPS | CrossOver with CXPatcher, after a patch; exact settings and test scene were not stated. | [Community report](https://www.reddit.com/r/macgaming/comments/1tni5zl/m4_mac_mini_base_crossover_patched/) |
-| MacBook Pro, M2 Pro, 32 GB | 127.9 FPS in a reported 1,000-frame window | Separate Wine + DXMT + MSync setup; Ancient benchmark map, low settings. This uses a different stack from WineShelf's managed Wine build. | [Measured-results project](https://github.com/piwas-21/cs2-apple-silicon) |
+| Game / Mac | FPS reported | Other useful info |
+| --- | ---: | --- |
+| Counter-Strike 2 · M2 MacBook Air | 30–40 FPS in one report; about 100 FPS in another | GameToMac: [30–40 report](https://www.reddit.com/r/macgaming/comments/1wd02i4/cs2_on_mac/) · [about 100, 8 GB](https://www.reddit.com/r/cs2/comments/1wsc8hk/how_rare_is_this/) |
+| Counter-Strike 2 · 14-inch MacBook Pro, M1 Pro, 16 GB | 75–115 FPS | CrossOver: [report](https://www.reddit.com/r/macgaming/comments/1waxdn9/cs2_crossover_inconsistent_frame_times/) |
+| Counter-Strike 2 · Base M4 Mac mini | 90–120 FPS | CrossOver + CXPatcher: [report](https://www.reddit.com/r/macgaming/comments/1tni5zl/m4_mac_mini_base_crossover_patched/) |
+| Counter-Strike 2 · MacBook Pro, M2 Pro, 32 GB | About 128 FPS | Wine + DXMT: [benchmark](https://github.com/piwas-21/cs2-apple-silicon/blob/main/docs/project/measured-results.md) |
+| Grand Theft Auto V (Legacy) · M1 MacBook Air, 8 GB | 70–80 FPS | Steam + CrossOver 23.7, custom DXVK: [report](https://www.reddit.com/r/macgaming/comments/1anh0gd/stutter_on_gta_v_crossover_macbook_m1_8gb/) |
+| The Witcher 3 · M1 MacBook Air, 8 GB | 40–60 FPS | Steam + CrossOver, medium settings: [report](https://applesilicongames.com/games/GdnUQRXMTXJshNj2xHHPq3/witcher-3) |
+| Elden Ring · Base M4 Mac mini, 16 GB | 50–60 FPS | CrossOver + D3DMetal: [reports](https://macgamingdb.app/games/elden-ring) |
 
-> ℹ️ Average FPS alone does not describe smoothness. Frame times, map, resolution, graphics settings, FPS cap, game build, wrapper, and heat can all change the result. A useful report includes the Mac chip and memory, macOS version, Wine or CrossOver setup, map, resolution, graphics preset, FPS, and frame-time readings.
+Online play, anti-cheat, launchers, and individual game updates can affect whether a title works at all. Check a game's current compatibility before buying it for Wine.
 
 ## 📦 Download and install
 
