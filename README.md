@@ -14,7 +14,7 @@
   <img src="Assets/Branding/WineShelf-README.png" width="100%" alt="WineShelf game library and controller illustration">
 </div>
 
-WineShelf is a native macOS app for managing Wine runtimes, Steam, Windows apps, and game prefixes. It can also import a supported GameToMac Counter-Strike 2 setup in place, without moving its game files.
+WineShelf is a native macOS app for managing Wine runtimes, Steam, Windows apps, and game prefixes. You can also import an existing Counter-Strike 2 Wine setup without moving its game files.
 
 ## ✨ Features
 
@@ -22,7 +22,8 @@ WineShelf is a native macOS app for managing Wine runtimes, Steam, Windows apps,
 | --- | --- | --- |
 | 🍷 | Managed Wine setup | Checks requirements, downloads a pinned Wine build, and verifies its SHA-256 digest. |
 | 🎮 | Steam and games | Installs Steam in its own Wine prefix; add Windows apps with their runtime, prefix, launch arguments, and environment settings. |
-| 📚 | One game library | Keeps shortcuts and launch settings together, and can import a supported GameToMac Counter-Strike 2 setup in place. |
+| 🚀 | **Run a Windows `.exe` directly** | **Choose or drag an executable into WineShelf; it prepares a Wine prefix, launches the file, and saves it in your library.** |
+| 📚 | One game library | Keeps shortcuts and launch settings together, and can import an existing Counter-Strike 2 setup in place. |
 | 🧰 | Session controls | Start or stop Wine sessions, open logs, and reveal app and prefix files in Finder. |
 
 ## 🖥️ Supported platforms
@@ -41,7 +42,7 @@ These are short community reports from Wine-based setups, mostly CrossOver. They
 
 | Game / Mac | FPS reported | Other useful info |
 | --- | ---: | --- |
-| Counter-Strike 2 · M2 MacBook Air | 30–40 FPS in one report; about 100 FPS in another | GameToMac: [30–40 report](https://www.reddit.com/r/macgaming/comments/1wd02i4/cs2_on_mac/) · [about 100, 8 GB](https://www.reddit.com/r/cs2/comments/1wsc8hk/how_rare_is_this/) |
+| Counter-Strike 2 · M2 MacBook Air | 30–40 FPS in one report; about 100 FPS in another | Separate community reports: [30–40 FPS](https://www.reddit.com/r/macgaming/comments/1wd02i4/cs2_on_mac/) · [about 100 FPS, 8 GB](https://www.reddit.com/r/cs2/comments/1wsc8hk/how_rare_is_this/) |
 | Counter-Strike 2 · 14-inch MacBook Pro, M1 Pro, 16 GB | 75–115 FPS | CrossOver: [report](https://www.reddit.com/r/macgaming/comments/1waxdn9/cs2_crossover_inconsistent_frame_times/) |
 | Counter-Strike 2 · Base M4 Mac mini | 90–120 FPS | CrossOver + CXPatcher: [report](https://www.reddit.com/r/macgaming/comments/1tni5zl/m4_mac_mini_base_crossover_patched/) |
 | Counter-Strike 2 · MacBook Pro, M2 Pro, 32 GB | About 128 FPS | Wine + DXMT: [benchmark](https://github.com/piwas-21/cs2-apple-silicon/blob/main/docs/project/measured-results.md) |
@@ -75,7 +76,9 @@ Rosetta requires user acceptance of Apple's license, and GStreamer uses Apple's 
 
 ## ➕ Add Windows apps
 
-Choose **Add Windows App** and select the Windows executable, an initialized Wine prefix (the folder containing `system.reg`), and the `wine` and `wineserver` binaries. WineShelf can discover common Wine locations, including its managed runtime and GameToMac installs.
+**Run a Windows `.exe` directly:** choose **Run Windows .exe…** from the **+** menu or drag an `.exe` onto the WineShelf window. WineShelf prepares a fresh prefix, launches the file, and adds it to your library. If Wine is not ready, WineShelf opens Wine Setup first.
+
+For custom configurations, choose **Add Windows App** and select the executable, an initialized Wine prefix (the folder containing `system.reg`), and the `wine` and `wineserver` binaries. WineShelf can discover Wine runtimes in common install locations.
 
 To create a Steam game shortcut, select the installed Steam executable and its Wine prefix. For a shortcut that launches a specific game, add the game's Steam App ID to the launch arguments. You can also launch Steam without arguments and manage games inside Steam.
 
@@ -100,7 +103,7 @@ Requirements: macOS 14 or later and Xcode Command Line Tools with Swift 6.
 The build script creates a universal `WineShelf.app`, generates the macOS icon from `Assets/Branding/WineShelf-Logo.png`, and packages it with an Applications shortcut:
 
 ```text
-dist/WineShelf-0.2.0-universal.dmg
+dist/WineShelf-0.2.1-universal.dmg
 ```
 
 Local builds are ad-hoc signed by default. For direct distribution, sign with a **Developer ID Application** identity and notarize the app and disk image with Apple's notary service. Set `CODESIGN_IDENTITY` to the identity's full name to enable hardened runtime and secure timestamps.

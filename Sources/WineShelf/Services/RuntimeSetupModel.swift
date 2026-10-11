@@ -35,6 +35,14 @@ final class RuntimeSetupModel: ObservableObject {
     static let gstreamerSource = URL(string: "https://gstreamer.freedesktop.org/data/pkg/osx/1.28.7/gstreamer-1.0-1.28.7-universal.pkg")!
     static let steamSetupSource = URL(string: "https://cdn.fastly.steamstatic.com/client/installer/SteamSetup.exe")!
 
+    static func runtimeReadyForDirectLaunch() -> DetectedWineRuntime? {
+        let setup = RuntimeSetupModel()
+        guard let runtime = setup.selectedRuntime else { return nil }
+        guard !setup.isAppleSilicon || setup.isRosettaAvailable else { return nil }
+        guard setup.isGStreamerInstalled else { return nil }
+        return runtime
+    }
+
     var selectedRuntime: DetectedWineRuntime? {
         runtimes.first { $0.id == selectedRuntimeID } ?? runtimes.first
     }
@@ -350,7 +358,7 @@ private enum RuntimeDiscovery {
         candidates += wineBinaries(in: support)
         candidates += wineBinaries(in: URL(fileURLWithPath: "/Applications", isDirectory: true))
         candidates += wineBinaries(in: home.appendingPathComponent("Applications", isDirectory: true))
-        candidates += gameToMacWineBinaries(under: home.appendingPathComponent("Library/Application Support/Game Library/Games", isDirectory: true))
+        candidates += existingLibraryWineBinaries(under: home.appendingPathComponent("Library/Application Support/Game Library/Games", isDirectory: true))
 
         var seen = Set<String>()
         return candidates.compactMap { candidate in
@@ -382,7 +390,7 @@ private enum RuntimeDiscovery {
         return results
     }
 
-    private static func gameToMacWineBinaries(under root: URL) -> [URL] {
+    private static func existingLibraryWineBinaries(under root: URL) -> [URL] {
         guard let games = try? FileManager.default.contentsOfDirectory(at: root, includingPropertiesForKeys: [.isDirectoryKey]) else { return [] }
         return games.flatMap { game in
             (try? FileManager.default.contentsOfDirectory(at: game, includingPropertiesForKeys: [.isDirectoryKey]))?.compactMap { engine in

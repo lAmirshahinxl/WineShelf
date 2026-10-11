@@ -4,9 +4,11 @@ struct RuntimeSetupView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var setup = RuntimeSetupModel()
     let onSteamAdded: (GameEntry) -> Void
+    let onDone: () -> Void
 
-    init(onSteamAdded: @escaping (GameEntry) -> Void = { _ in }) {
+    init(onSteamAdded: @escaping (GameEntry) -> Void = { _ in }, onDone: @escaping () -> Void = {}) {
         self.onSteamAdded = onSteamAdded
+        self.onDone = onDone
     }
 
     var body: some View {
@@ -240,7 +242,10 @@ struct RuntimeSetupView: View {
     private var footer: some View {
         HStack {
             Spacer()
-            Button("Done") { dismiss() }
+            Button("Done") {
+                onDone()
+                dismiss()
+            }
                 .keyboardShortcut(.defaultAction)
         }
         .padding(16)
@@ -265,6 +270,7 @@ struct RuntimeSetupView: View {
         Task {
             guard let entry = await setup.installSteam() else { return }
             onSteamAdded(entry)
+            onDone()
             dismiss()
         }
     }

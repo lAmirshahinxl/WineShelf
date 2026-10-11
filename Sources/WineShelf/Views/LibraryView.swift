@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct LibraryView: View {
     @ObservedObject var library: LibraryModel
@@ -8,6 +9,9 @@ struct LibraryView: View {
     @State private var removalCandidate: GameEntry?
     @State private var isShowingRemovalConfirmation = false
     @State private var isShowingRuntimeSetup = false
+    @State private var pendingExecutableURL: URL?
+    @State private var shouldResumeExecutableAfterSetup = false
+    @State private var isFileDropTargeted = false
 
     var body: some View {
         NavigationSplitView {
@@ -46,13 +50,18 @@ struct LibraryView: View {
                             isShowingRuntimeSetup = true
                         }
                         Divider()
-                        Button("Import GameToMac CS2 Setup…", systemImage: "square.and.arrow.down") {
+                        Button("Import Existing CS2 Setup…", systemImage: "square.and.arrow.down") {
                             library.importCS2()
                         }
+                        Button("Run Windows .exe…", systemImage: "play.rectangle") {
+                            chooseExecutableToRun()
+                        }
+                        .disabled(library.preparingExecutable != nil)
                         Button("Add Windows App…", systemImage: "plus.app") {
                             editingEntry = nil
                             isShowingEditor = true
                         }
+                        .disabled(library.preparingExecutable != nil)
                     } label: {
                         Image(systemName: "plus")
                     }
@@ -79,16 +88,19 @@ struct LibraryView: View {
                 ContentUnavailableView {
                     Label("No Games Yet", systemImage: "wineglass")
                 } description: {
-                    Text("Import the existing Counter-Strike 2 setup or add a Windows app and its Wine prefix.")
+                    Text("Choose a Windows .exe to launch it in Wine, or add an app to your library. You can also drag an .exe onto this window.")
                 } actions: {
                     Menu("Add to Library") {
                         Button("Set Up Wine Runtime…", systemImage: "wineglass") { isShowingRuntimeSetup = true }
                         Divider()
-                        Button("Import GameToMac CS2 Setup…", systemImage: "square.and.arrow.down") { library.importCS2() }
+                        Button("Run Windows .exe…", systemImage: "play.rectangle") { chooseExecutableToRun() }
+                            .disabled(library.preparingExecutable != nil)
+                        Button("Import Existing CS2 Setup…", systemImage: "square.and.arrow.down") { library.importCS2() }
                         Button("Add Windows App…", systemImage: "plus.app") {
                             editingEntry = nil
                             isShowingEditor = true
                         }
+                        .disabled(library.preparingExecutable != nil)
                     }
                 }
             }
@@ -102,8 +114,8 @@ struct LibraryView: View {
             }
             .frame(minWidth: 640, minHeight: 560)
         }
-        .sheet(isPresented: $isShowingRuntimeSetup) {
-            RuntimeSetupView { steamEntry in
+        .sheet(isPresented: $isShowingRuntimeSetup, onDismiss: resumeExecutableAfterSetup) {
+            RuntimeSetupView(onSteamAdded: { steamEntry in
                 if let existing = library.entries.first(where: {
                     $0.prefixPath == steamEntry.prefixPath && $0.executablePath == steamEntry.executablePath
                 }) {
@@ -113,7 +125,9 @@ struct LibraryView: View {
                     library.add(steamEntry)
                     library.notice = "Steam was added. Sign in and install games from Steam."
                 }
-            }
+            }, onDone: {
+                shouldResumeExecutableAfterSetup = true
+            })
         }
         .alert("Remove this entry?", isPresented: $isShowingRemovalConfirmation, presenting: removalCandidate) { entry in
             Button("Remove Entry", role: .destructive) { library.remove(entry) }
@@ -137,11 +151,91 @@ struct LibraryView: View {
         } message: {
             Text(library.notice ?? "")
         }
+        .onDrop(of: [UTType.fileURL], isTargeted: $isFileDropTargeted, perform: receiveDroppedFile)
+        .overlay(alignment: .top) {
+            if isFileDropTargeted {
+                Label("Drop a Windows .exe to launch it", systemImage: "arrow.down.doc.fill")
+                    .font(.callout.weight(.medium))
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 9)
+                    .background(.regularMaterial, in: Capsule())
+                    .padding(.top, 12)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("Drop a Windows executable to launch it")
+            }
+        }
+        .overlay(alignment: .bottomTrailing) {
+            if let name = library.preparingExecutable {
+                HStack(spacing: 9) {
+                    ProgressView().controlSize(.small)
+                    Text("Preparing \(name)…")
+                        .font(.callout)
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .background(.regularMaterial, in: Capsule())
+                .shadow(color: .black.opacity(0.12), radius: 12, y: 4)
+                .padding(18)
+                .accessibilityElement(children: .combine)
+            }
+        }
     }
 
     private func edit(_ entry: GameEntry) {
         editingEntry = entry
         isShowingEditor = true
+    }
+
+    private func chooseExecutableToRun() {
+        let panel = NSOpenPanel()
+        panel.title = "Choose a Windows executable to run"
+        panel.message = "WineShelf will create a Wine prefix, launch the executable, and add it to your library."
+        panel.allowedContentTypes = [UTType(filenameExtension: "exe") ?? .data]
+        panel.allowsOtherFileTypes = true
+        panel.canChooseFiles = true
+        panel.canChooseDirectories = false
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        pendingExecutableURL = url
+        launchPendingExecutableIfReady()
+    }
+
+    private func launchPendingExecutableIfReady() {
+        guard let url = pendingExecutableURL else { return }
+        guard let runtime = RuntimeSetupModel.runtimeReadyForDirectLaunch() else {
+            isShowingRuntimeSetup = true
+            return
+        }
+        pendingExecutableURL = nil
+        library.launchExecutable(url, using: runtime)
+    }
+
+    private func resumeExecutableAfterSetup() {
+        guard let url = pendingExecutableURL else { return }
+        guard shouldResumeExecutableAfterSetup else {
+            pendingExecutableURL = nil
+            return
+        }
+        shouldResumeExecutableAfterSetup = false
+        guard let runtime = RuntimeSetupModel.runtimeReadyForDirectLaunch() else {
+            pendingExecutableURL = nil
+            library.errorMessage = "Wine isn't ready yet. Finish the required steps in Wine Setup, then choose the .exe again."
+            return
+        }
+        pendingExecutableURL = nil
+        library.launchExecutable(url, using: runtime)
+    }
+
+    private func receiveDroppedFile(_ providers: [NSItemProvider]) -> Bool {
+        guard let provider = providers.first else { return false }
+        provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, _ in
+            let url = (item as? URL) ?? (item as? Data).flatMap { URL(dataRepresentation: $0, relativeTo: nil) }
+            guard let url else { return }
+            DispatchQueue.main.async {
+                pendingExecutableURL = url
+                launchPendingExecutableIfReady()
+            }
+        }
+        return true
     }
 }
 

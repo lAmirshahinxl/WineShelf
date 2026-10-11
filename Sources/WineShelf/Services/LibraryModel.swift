@@ -7,6 +7,7 @@ final class LibraryModel: ObservableObject {
     @Published private(set) var entries: [GameEntry] = []
     @Published var selectedID: UUID?
     @Published private(set) var runningIDs: Set<UUID> = []
+    @Published private(set) var preparingExecutable: String?
     @Published var notice: String?
     @Published var errorMessage: String?
 
@@ -65,6 +66,51 @@ final class LibraryModel: ObservableObject {
             notice = "Counter-Strike 2 was added. WineShelf only saved its paths and launch settings; the game files and prefix were left in place."
         } catch {
             errorMessage = error.localizedDescription
+        }
+    }
+
+    func launchExecutable(_ executableURL: URL, using runtime: DetectedWineRuntime) {
+        let executableURL = executableURL.standardizedFileURL
+        let executablePath = GameEntry.normalizedPath(executableURL.path)
+        guard executableURL.pathExtension.lowercased() == "exe" else {
+            errorMessage = "Choose a Windows executable file ending in .exe."
+            return
+        }
+        guard fileManager.isReadableFile(atPath: executablePath) else {
+            errorMessage = "WineShelf can't read this executable:\n\(executablePath)"
+            return
+        }
+        if let existing = entries.first(where: { $0.executablePath == executablePath }) {
+            selectedID = existing.id
+            launch(existing)
+            return
+        }
+        guard preparingExecutable == nil else { return }
+
+        let name = executableURL.deletingPathExtension().lastPathComponent
+        let entry = GameEntry(
+            name: name,
+            executablePath: executablePath,
+            prefixPath: supportDirectory.appendingPathComponent("Prefixes/Direct-\(UUID().uuidString)", isDirectory: true).path,
+            winePath: runtime.winePath,
+            wineServerPath: runtime.wineServerPath
+        )
+        let setupLogURL = supportDirectory.appendingPathComponent("Logs/prefix-\(entry.id.uuidString).log")
+        preparingExecutable = name
+
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            let result = Result { try WineRuntime.createPrefix(for: entry, logURL: setupLogURL) }
+            DispatchQueue.main.async {
+                guard let self else { return }
+                self.preparingExecutable = nil
+                switch result {
+                case .success:
+                    self.add(entry)
+                    self.launch(entry)
+                case .failure(let error):
+                    self.errorMessage = "WineShelf couldn't prepare \(name):\n\(error.localizedDescription)"
+                }
+            }
         }
     }
 
