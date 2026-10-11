@@ -2,24 +2,36 @@ import AppKit
 import SwiftUI
 import UniformTypeIdentifiers
 
+private enum LibraryDestination: Hashable {
+    case games
+    case app(UUID)
+}
+
 struct LibraryView: View {
     @ObservedObject var library: LibraryModel
+    @State private var selectedDestination: LibraryDestination = .games
+    @State private var didInitializeDestination = false
     @State private var isShowingEditor = false
     @State private var editingEntry: GameEntry?
     @State private var removalCandidate: GameEntry?
     @State private var isShowingRemovalConfirmation = false
     @State private var isShowingRuntimeSetup = false
     @State private var pendingExecutableURL: URL?
+    @State private var pendingSteamGame: SteamGame?
     @State private var shouldResumeExecutableAfterSetup = false
     @State private var isFileDropTargeted = false
 
     var body: some View {
         NavigationSplitView {
-            List(selection: $library.selectedID) {
+            List(selection: $selectedDestination) {
+                Section("DISCOVER") {
+                    Label("Steam Games", systemImage: "gamecontroller")
+                        .tag(LibraryDestination.games)
+                }
                 Section("LIBRARY") {
                     ForEach(library.entries) { entry in
                         LibraryRow(entry: entry, isRunning: library.runningIDs.contains(entry.id))
-                            .tag(entry.id)
+                            .tag(LibraryDestination.app(entry.id))
                             .contextMenu {
                                 Button("Edit Settings…", systemImage: "slider.horizontal.3") { edit(entry) }
                                     .disabled(library.runningIDs.contains(entry.id))
@@ -46,13 +58,10 @@ struct LibraryView: View {
                 }
                 ToolbarItem(placement: .primaryAction) {
                     Menu {
-                        Button("Wine Setup…", systemImage: "wineglass") {
-                            isShowingRuntimeSetup = true
+                        Button("Browse Steam Games", systemImage: "gamecontroller") {
+                            selectedDestination = .games
                         }
                         Divider()
-                        Button("Import Existing CS2 Setup…", systemImage: "square.and.arrow.down") {
-                            library.importCS2()
-                        }
                         Button("Run Windows .exe…", systemImage: "play.rectangle") {
                             chooseExecutableToRun()
                         }
@@ -69,7 +78,9 @@ struct LibraryView: View {
                 }
             }
         } detail: {
-            if let entry = library.selectedEntry {
+            if selectedDestination == .games {
+                SteamGamesView(library: library, onSetUpSteam: beginSteamGameSetup)
+            } else if let entry = library.selectedEntry {
                 GameDetailView(
                     entry: entry,
                     isRunning: library.runningIDs.contains(entry.id),
@@ -90,18 +101,9 @@ struct LibraryView: View {
                 } description: {
                     Text("Choose a Windows .exe to launch it in Wine, or add an app to your library. You can also drag an .exe onto this window.")
                 } actions: {
-                    Menu("Add to Library") {
-                        Button("Set Up Wine Runtime…", systemImage: "wineglass") { isShowingRuntimeSetup = true }
-                        Divider()
-                        Button("Run Windows .exe…", systemImage: "play.rectangle") { chooseExecutableToRun() }
-                            .disabled(library.preparingExecutable != nil)
-                        Button("Import Existing CS2 Setup…", systemImage: "square.and.arrow.down") { library.importCS2() }
-                        Button("Add Windows App…", systemImage: "plus.app") {
-                            editingEntry = nil
-                            isShowingEditor = true
-                        }
+                    Button("Explore Steam Games", systemImage: "gamecontroller") { selectedDestination = .games }
+                    Button("Run Windows .exe…", systemImage: "play.rectangle", action: chooseExecutableToRun)
                         .disabled(library.preparingExecutable != nil)
-                    }
                 }
             }
         }
@@ -114,7 +116,7 @@ struct LibraryView: View {
             }
             .frame(minWidth: 640, minHeight: 560)
         }
-        .sheet(isPresented: $isShowingRuntimeSetup, onDismiss: resumeExecutableAfterSetup) {
+        .sheet(isPresented: $isShowingRuntimeSetup, onDismiss: resumeAfterSetup) {
             RuntimeSetupView(onSteamAdded: { steamEntry in
                 if let existing = library.entries.first(where: {
                     $0.prefixPath == steamEntry.prefixPath && $0.executablePath == steamEntry.executablePath
@@ -152,6 +154,18 @@ struct LibraryView: View {
             Text(library.notice ?? "")
         }
         .onDrop(of: [UTType.fileURL], isTargeted: $isFileDropTargeted, perform: receiveDroppedFile)
+        .onAppear {
+            guard !didInitializeDestination else { return }
+            didInitializeDestination = true
+            selectedDestination = library.selectedID.map(LibraryDestination.app) ?? .games
+        }
+        .onChange(of: selectedDestination) { _, destination in
+            if case .app(let id) = destination { library.selectedID = id }
+        }
+        .onChange(of: library.selectedID) { _, id in
+            guard selectedDestination != .games else { return }
+            selectedDestination = id.map(LibraryDestination.app) ?? .games
+        }
         .overlay(alignment: .top) {
             if isFileDropTargeted {
                 Label("Drop a Windows .exe to launch it", systemImage: "arrow.down.doc.fill")
@@ -209,20 +223,31 @@ struct LibraryView: View {
         library.launchExecutable(url, using: runtime)
     }
 
-    private func resumeExecutableAfterSetup() {
-        guard let url = pendingExecutableURL else { return }
-        guard shouldResumeExecutableAfterSetup else {
+    private func resumeAfterSetup() {
+        if let url = pendingExecutableURL {
             pendingExecutableURL = nil
+            if shouldResumeExecutableAfterSetup {
+                shouldResumeExecutableAfterSetup = false
+                guard let runtime = RuntimeSetupModel.runtimeReadyForDirectLaunch() else {
+                    library.errorMessage = "Wine isn't ready yet. Finish the required steps in Wine Setup, then choose the .exe again."
+                    return
+                }
+                library.launchExecutable(url, using: runtime)
+            }
+        }
+
+        guard let game = pendingSteamGame else { return }
+        pendingSteamGame = nil
+        guard library.steamEntry != nil else {
+            library.notice = "Steam is not installed yet. Open Wine Setup, install Steam, and try this game again."
             return
         }
-        shouldResumeExecutableAfterSetup = false
-        guard let runtime = RuntimeSetupModel.runtimeReadyForDirectLaunch() else {
-            pendingExecutableURL = nil
-            library.errorMessage = "Wine isn't ready yet. Finish the required steps in Wine Setup, then choose the .exe again."
-            return
-        }
-        pendingExecutableURL = nil
-        library.launchExecutable(url, using: runtime)
+        library.installSteamGame(game)
+    }
+
+    private func beginSteamGameSetup(for game: SteamGame) {
+        pendingSteamGame = game
+        isShowingRuntimeSetup = true
     }
 
     private func receiveDroppedFile(_ providers: [NSItemProvider]) -> Bool {
