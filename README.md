@@ -1,5 +1,7 @@
 # WineShelf
 
+![WineShelf game library and controller illustration](Assets/Branding/WineShelf-README.png)
+
 WineShelf is a macOS library for installing and managing Wine runtimes, Windows apps, and game shortcuts. It can set up the Wine dependencies, install Windows Steam into a dedicated Wine prefix, and launch games through Steam.
 
 ## Download
