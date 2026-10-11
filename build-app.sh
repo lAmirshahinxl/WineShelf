@@ -13,7 +13,7 @@ x86_scratch="$project_dir/.build-x86_64"
 dist_dir="$project_dir/dist"
 app_dir="$dist_dir/WineShelf.app"
 contents_dir="$app_dir/Contents"
-logo_png="$project_dir/Assets/Branding/WineShelf-Logo.png"
+logo_png="$project_dir/Assets/Branding/WineShelf-Logo-2026.png"
 build_temp="$(mktemp -d "${TMPDIR:-/tmp}/wineshelf-build.XXXXXX")"
 trap 'rm -rf "$build_temp"' EXIT
 

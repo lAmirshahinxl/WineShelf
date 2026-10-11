@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="Assets/Branding/WineShelf-Logo.png" width="104" alt="WineShelf app icon">
+  <img src="Assets/Branding/WineShelf-Logo-2026.png" width="104" alt="WineShelf app icon">
   <h1>WineShelf</h1>
   <p><strong>Your Windows game library, ready for macOS.</strong><br>Set up Wine and Steam, organize game prefixes, and launch your Windows apps from one place.</p>
   <p>
@@ -104,7 +104,7 @@ Requirements: macOS 14 or later and Xcode Command Line Tools with Swift 6.
 ./build-app.sh
 ```
 
-The build script creates a universal `WineShelf.app`, generates the macOS icon from `Assets/Branding/WineShelf-Logo.png`, and packages it with an Applications shortcut:
+The build script creates a universal `WineShelf.app`, generates the macOS icon from `Assets/Branding/WineShelf-Logo-2026.png`, and packages it with an Applications shortcut:
 
 ```text
 dist/WineShelf-0.5.0-universal.dmg
