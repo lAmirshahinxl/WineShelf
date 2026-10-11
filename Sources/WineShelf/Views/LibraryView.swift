@@ -17,7 +17,7 @@ struct LibraryView: View {
     @State private var isShowingRemovalConfirmation = false
     @State private var isShowingRuntimeSetup = false
     @State private var pendingExecutableURL: URL?
-    @State private var pendingSteamGame: SteamGame?
+    @State private var pendingGameSetup: (game: SteamGame, storefront: GameStorefront)?
     @State private var shouldResumeExecutableAfterSetup = false
     @State private var isFileDropTargeted = false
 
@@ -25,7 +25,7 @@ struct LibraryView: View {
         NavigationSplitView {
             List(selection: $selectedDestination) {
                 Section("DISCOVER") {
-                    Label("Steam Games", systemImage: "gamecontroller")
+                    Label("Game Profiles", systemImage: "gamecontroller")
                         .tag(LibraryDestination.games)
                 }
                 Section("LIBRARY") {
@@ -58,7 +58,7 @@ struct LibraryView: View {
                 }
                 ToolbarItem(placement: .primaryAction) {
                     Menu {
-                        Button("Browse Steam Games", systemImage: "gamecontroller") {
+                        Button("Browse Game Profiles", systemImage: "gamecontroller") {
                             selectedDestination = .games
                         }
                         Divider()
@@ -79,7 +79,7 @@ struct LibraryView: View {
             }
         } detail: {
             if selectedDestination == .games {
-                SteamGamesView(library: library, onSetUpSteam: beginSteamGameSetup)
+                SteamGamesView(library: library, onSetUpStore: beginGameSetup)
             } else if let entry = library.selectedEntry {
                 GameDetailView(
                     entry: entry,
@@ -101,7 +101,7 @@ struct LibraryView: View {
                 } description: {
                     Text("Choose a Windows .exe to launch it in Wine, or add an app to your library. You can also drag an .exe onto this window.")
                 } actions: {
-                    Button("Explore Steam Games", systemImage: "gamecontroller") { selectedDestination = .games }
+                    Button("Explore Game Profiles", systemImage: "gamecontroller") { selectedDestination = .games }
                     Button("Run Windows .exe…", systemImage: "play.rectangle", action: chooseExecutableToRun)
                         .disabled(library.preparingExecutable != nil)
                 }
@@ -193,6 +193,10 @@ struct LibraryView: View {
                 .accessibilityElement(children: .combine)
             }
         }
+        .background {
+            Color(nsColor: .windowBackgroundColor)
+                .ignoresSafeArea()
+        }
     }
 
     private func edit(_ entry: GameEntry) {
@@ -236,17 +240,21 @@ struct LibraryView: View {
             }
         }
 
-        guard let game = pendingSteamGame else { return }
-        pendingSteamGame = nil
-        guard library.steamEntry != nil else {
-            library.notice = "Steam is not installed yet. Open Wine Setup, install Steam, and try this game again."
-            return
+        guard let setup = pendingGameSetup else { return }
+        pendingGameSetup = nil
+        if setup.storefront == .steam {
+            guard library.steamEntry != nil else {
+                library.notice = "Steam is not installed yet. Open Wine Setup, install Steam, and try this game again."
+                return
+            }
+            library.openSteamGamePage(setup.game)
+        } else {
+            library.notice = "Wine is ready. Download the Battle.net PC installer, choose + → Run Windows .exe…, then edit its WineShelf entry to use Battle.net.exe in the same prefix."
         }
-        library.installSteamGame(game)
     }
 
-    private func beginSteamGameSetup(for game: SteamGame) {
-        pendingSteamGame = game
+    private func beginGameSetup(for game: SteamGame, storefront: GameStorefront) {
+        pendingGameSetup = (game, storefront)
         isShowingRuntimeSetup = true
     }
 
@@ -298,85 +306,185 @@ private struct GameDetailView: View {
     let onRemove: () -> Void
 
     @State private var isShowingStopConfirmation = false
+    @StateObject private var artworkStore = SteamGameStoreModel()
+
+    private var catalogGame: SteamGame? {
+        SteamGameCatalog.game(named: entry.name)
+    }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                HStack(alignment: .top, spacing: 18) {
-                    Image(systemName: "gamecontroller.fill")
-                        .font(.system(size: 30, weight: .medium))
-                        .foregroundStyle(Color.accentColor)
-                        .frame(width: 72, height: 72)
-                        .background(.quaternary, in: RoundedRectangle(cornerRadius: 18))
-                    VStack(alignment: .leading, spacing: 7) {
-                        Text(entry.name)
-                            .font(.largeTitle.weight(.semibold))
-                        Label(isRunning ? "Wine session active" : "Ready to launch", systemImage: isRunning ? "circle.fill" : "checkmark.circle")
-                            .font(.subheadline)
-                            .foregroundStyle(isRunning ? Color.green : Color.secondary)
-                    }
-                    Spacer()
-                    if isRunning {
-                        Button(role: .destructive) { isShowingStopConfirmation = true } label: {
-                            Label("Stop Wine", systemImage: "stop.fill")
-                        }
-                        .controlSize(.large)
-                    } else {
-                        Button(action: onLaunch) {
-                            Label("Launch", systemImage: "play.fill")
-                        }
-                        .controlSize(.large)
-                        .keyboardShortcut(.defaultAction)
-                    }
-                }
-
-                Divider()
-
-                VStack(alignment: .leading, spacing: 14) {
-                    Text("SETUP")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                    PathCard(title: "Wine prefix", path: entry.prefixPath, icon: "shippingbox", action: onShowPrefix)
-                    PathCard(title: "Windows app", path: entry.executablePath, icon: "app.dashed", action: onShowFiles)
-                    PathCard(title: "Wine runtime", path: entry.winePath, icon: "wineglass", action: nil)
-                }
-
-                HStack(spacing: 12) {
-                    Button(action: onEdit) { Label("Edit Settings", systemImage: "slider.horizontal.3") }
-                        .disabled(isRunning)
-                    Button(action: onOpenLog) { Label("Open Last Log", systemImage: "doc.text") }
-                    Menu {
-                        Button("Show Game File in Finder", systemImage: "folder", action: onShowFiles)
-                        Button("Show Wine Prefix in Finder", systemImage: "shippingbox", action: onShowPrefix)
-                        Divider()
-                        Button("Stop Wine Apps Using This Prefix", systemImage: "stop.fill", role: .destructive) {
-                            isShowingStopConfirmation = true
-                        }
-                        Divider()
-                        Button("Remove from Library…", systemImage: "minus.circle", role: .destructive, action: onRemove)
-                    } label: {
-                        Image(systemName: "ellipsis")
-                            .frame(width: 28, height: 24)
-                    }
-                    .menuStyle(.borderlessButton)
-                }
-                .buttonStyle(.bordered)
-
-                Text("WineShelf stores launch settings in your user Library and starts this entry with its own prefix. Importing or removing a shortcut does not move or delete game files.")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                gameHero
+                environmentSection
+                detailActions
+                storageNote
             }
             .padding(32)
-            .frame(maxWidth: 820, alignment: .leading)
+            .frame(maxWidth: 1120, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .center)
         }
         .background(Color(nsColor: .windowBackgroundColor))
+        .task(id: entry.id) {
+            guard let catalogGame else { return }
+            await artworkStore.load([catalogGame])
+        }
         .alert("Stop this Wine session?", isPresented: $isShowingStopConfirmation) {
             Button("Stop Wine", role: .destructive, action: onStop)
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("This sends wineserver -k to the selected prefix. It closes all Wine apps using this same prefix, including Steam if it is running there.")
         }
+    }
+
+    private var gameHero: some View {
+        ZStack(alignment: .leading) {
+            gameArtwork
+                .frame(maxWidth: .infinity)
+                .frame(height: 280)
+
+            LinearGradient(
+                stops: [
+                    .init(color: .black.opacity(0.42), location: 0),
+                    .init(color: .black.opacity(0.06), location: 0.48),
+                    .init(color: .black.opacity(0.82), location: 1)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(alignment: .top) {
+                    Text("WINE LIBRARY")
+                        .font(.caption.weight(.bold))
+                        .tracking(1.2)
+                        .foregroundStyle(.white.opacity(0.8))
+                    Spacer()
+                    primaryAction
+                }
+
+                Spacer(minLength: 20)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(entry.name)
+                        .font(.largeTitle.weight(.bold))
+                        .foregroundStyle(.white)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.8)
+                    Text(catalogGame?.genre ?? "Windows app")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.white.opacity(0.8))
+                    Label(
+                        isRunning ? "Wine session active" : "Ready to launch",
+                        systemImage: isRunning ? "circle.fill" : "checkmark.circle.fill"
+                    )
+                    .font(.callout.weight(.semibold))
+                    .foregroundStyle(isRunning ? Color.green : Color.white)
+                    .padding(.horizontal, 11)
+                    .padding(.vertical, 7)
+                    .background(.white.opacity(0.14), in: Capsule())
+                    .padding(.top, 3)
+                }
+            }
+            .padding(26)
+        }
+        .frame(height: 280)
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .strokeBorder(.white.opacity(0.12))
+        }
+    }
+
+    @ViewBuilder
+    private var gameArtwork: some View {
+        if let catalogGame {
+            SteamArtworkView(
+                url: artworkStore.games[catalogGame.id]?.headerImage,
+                symbol: catalogGame.symbol,
+                isLoading: artworkStore.loadingIDs.contains(catalogGame.id)
+            )
+        } else {
+            SteamArtworkView(url: nil, symbol: "gamecontroller.fill")
+        }
+    }
+
+    @ViewBuilder
+    private var primaryAction: some View {
+        if isRunning {
+            Button(role: .destructive) { isShowingStopConfirmation = true } label: {
+                Label("Stop Wine", systemImage: "stop.fill")
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.red)
+            .controlSize(.large)
+        } else {
+            Button(action: onLaunch) {
+                Label("Launch", systemImage: "play.fill")
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            .keyboardShortcut(.defaultAction)
+        }
+    }
+
+    private var environmentSection: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Wine environment")
+                    .font(.title3.weight(.semibold))
+                Text("The files WineShelf uses to run this entry.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+
+            VStack(spacing: 12) {
+                PathCard(title: "Wine prefix", path: entry.prefixPath, icon: "shippingbox", action: onShowPrefix)
+                HStack(spacing: 12) {
+                    PathCard(title: "Windows app", path: entry.executablePath, icon: "app.dashed", action: onShowFiles)
+                    PathCard(title: "Wine runtime", path: entry.winePath, icon: "wineglass", action: nil)
+                }
+            }
+        }
+    }
+
+    private var detailActions: some View {
+        HStack(spacing: 10) {
+            Button(action: onEdit) { Label("Edit Settings", systemImage: "slider.horizontal.3") }
+                .disabled(isRunning)
+            Button(action: onOpenLog) { Label("Open Last Log", systemImage: "doc.text") }
+            Menu {
+                Button("Show Game File in Finder", systemImage: "folder", action: onShowFiles)
+                Button("Show Wine Prefix in Finder", systemImage: "shippingbox", action: onShowPrefix)
+                Divider()
+                Button("Stop Wine Apps Using This Prefix", systemImage: "stop.fill", role: .destructive) {
+                    isShowingStopConfirmation = true
+                }
+                Divider()
+                Button("Remove from Library…", systemImage: "minus.circle", role: .destructive, action: onRemove)
+            } label: {
+                Image(systemName: "ellipsis")
+                    .frame(width: 32, height: 24)
+            }
+            .menuStyle(.borderlessButton)
+            .help("More actions")
+        }
+        .buttonStyle(.bordered)
+    }
+
+    private var storageNote: some View {
+        Label {
+            Text("WineShelf keeps these files in your Library. Removing this entry does not delete them.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        } icon: {
+            Image(systemName: "info.circle.fill")
+                .foregroundStyle(.secondary)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 14))
     }
 }
 
@@ -387,30 +495,34 @@ private struct PathCard: View {
     let action: (() -> Void)?
 
     var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: icon)
-                .foregroundStyle(.secondary)
-                .frame(width: 22)
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title).font(.subheadline.weight(.medium))
-                Text(path)
-                    .font(.system(.caption, design: .monospaced))
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-                    .textSelection(.enabled)
-            }
-            Spacer(minLength: 8)
-            if let action {
-                Button(action: action) {
-                    Image(systemName: "arrow.up.right.square")
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 10) {
+                Label(title, systemImage: icon)
+                    .font(.subheadline.weight(.semibold))
+                Spacer(minLength: 8)
+                if let action {
+                    Button(action: action) {
+                        Image(systemName: "arrow.up.right.square")
+                            .frame(width: 24, height: 24)
+                    }
+                    .buttonStyle(.borderless)
+                    .help("Show in Finder")
+                    .accessibilityLabel("Show \(title) in Finder")
                 }
-                .buttonStyle(.borderless)
-                .help("Show in Finder")
             }
+
+            Text(path)
+                .font(.system(size: 11, design: .monospaced))
+                .foregroundStyle(.secondary)
+                .lineLimit(3)
+                .truncationMode(.middle)
+                .textSelection(.enabled)
+                .help(path)
         }
-        .padding(14)
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.background, in: RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(.quaternary))
+        .frame(minHeight: 114, alignment: .topLeading)
+        .background(.background, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(.quaternary))
     }
 }
