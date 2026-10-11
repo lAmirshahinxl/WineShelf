@@ -1,36 +1,43 @@
 <div align="center">
-  <img src="Assets/Branding/WineShelf-Logo.png" width="112" alt="WineShelf app icon">
+  <img src="Assets/Branding/WineShelf-Logo.png" width="104" alt="WineShelf app icon">
   <h1>WineShelf</h1>
-  <p>A native Mac library for Wine runtimes, Windows apps, and games.</p>
-  <p><a href="https://github.com/lAmirshahinxl/WineShelf/releases">Download the latest DMG</a> · macOS 14+ · Universal app</p>
+  <p><strong>Your Windows game library, ready for macOS.</strong><br>Set up Wine and Steam, organize game prefixes, and launch your Windows apps from one place.</p>
+  <p>
+    <a href="https://github.com/lAmirshahinxl/WineShelf/releases/latest"><img src="https://img.shields.io/github/v/release/lAmirshahinxl/WineShelf?display_name=tag&label=latest%20release&style=flat-square&color=00cbd4" alt="Latest release"></a>
+    <a href="LICENSE"><img src="https://img.shields.io/github/license/lAmirshahinxl/WineShelf?style=flat-square&color=081b3a" alt="MIT License"></a>
+    <img src="https://img.shields.io/badge/macOS-14%2B-081b3a?style=flat-square&logo=apple&logoColor=white" alt="macOS 14 or later">
+    <img src="https://img.shields.io/badge/app-universal-081b3a?style=flat-square" alt="Universal arm64 and x86_64 app">
+    <img src="https://img.shields.io/badge/Swift-6-F05138?style=flat-square&logo=swift&logoColor=white" alt="Built with Swift 6">
+  </p>
+  <p><a href="https://github.com/lAmirshahinxl/WineShelf/releases/latest"><img src="https://img.shields.io/badge/Download-Latest%20DMG-00cbd4?style=for-the-badge&logo=apple&logoColor=white&labelColor=081b3a" alt="Download latest DMG"></a></p>
+  <p><a href="https://github.com/lAmirshahinxl/WineShelf/issues">💬 Issues and feedback</a></p>
   <img src="Assets/Branding/WineShelf-README.png" width="100%" alt="WineShelf game library and controller illustration">
 </div>
 
-WineShelf helps you set up Wine and Steam, organize Windows apps, and launch them with their own Wine prefixes. It can also import an existing GameToMac Counter-Strike 2 setup without moving its game files.
+WineShelf is a native macOS app for managing Wine runtimes, Steam, Windows apps, and game prefixes. It can also import a supported GameToMac Counter-Strike 2 setup in place, without moving its game files.
 
-## Features
+## ✨ Features
 
-| Feature | What it does |
-| --- | --- |
-| Managed Wine setup | Checks requirements, downloads a pinned Wine build, and verifies its SHA-256 digest. |
-| Steam setup | Downloads Valve's Steam Setup and installs it into a separate Wine prefix. |
-| Game library | Adds Windows `.exe` apps with their Wine runtime, prefix, launch arguments, and environment settings. |
-| Existing setup import | Finds and imports the supported GameToMac Counter-Strike 2 setup in place. |
-| Session controls | Launches and stops Wine sessions, opens logs, and reveals app and prefix files in Finder. |
+| | Feature | What it does |
+| --- | --- | --- |
+| 🍷 | Managed Wine setup | Checks requirements, downloads a pinned Wine build, and verifies its SHA-256 digest. |
+| 🎮 | Steam and games | Installs Steam in its own Wine prefix; add Windows apps with their runtime, prefix, launch arguments, and environment settings. |
+| 📚 | One game library | Keeps shortcuts and launch settings together, and can import a supported GameToMac Counter-Strike 2 setup in place. |
+| 🧰 | Session controls | Start or stop Wine sessions, open logs, and reveal app and prefix files in Finder. |
 
-## Supported platforms
+## 🖥️ Supported platforms
 
 | Mac | WineShelf app | Managed Wine runtime | Notes |
 | --- | --- | --- | --- |
-| Intel Mac running macOS 14 or later | Native x86_64 | x86_64, native | Rosetta is not needed. |
-| Apple silicon Mac running macOS 14 or later | Native arm64 | x86_64 through Rosetta 2 | Install Rosetta before using the managed Wine runtime. |
-| Windows or Linux computer | Not supported | — | WineShelf is a native macOS app. |
+| Intel Mac · macOS 14 or later | Native x86_64 | x86_64, native | Rosetta is not needed. |
+| Apple silicon · macOS 14 or later | Native arm64 | x86_64 through Rosetta 2 | Install Rosetta before using the managed Wine runtime. |
+| Windows or Linux | Not supported | — | WineShelf is a native macOS app. |
 
-The released app is a universal arm64 and x86_64 build. The Wine build offered by WineShelf is x86_64. Windows game compatibility varies by title, Wine behavior, graphics settings, and game-specific protections; not every game will run.
+The released app is a universal arm64 and x86_64 build. The managed Wine build is x86_64. Game compatibility and performance vary by title, Wine behavior, graphics settings, and game-specific protections; not every game will run.
 
-## Counter-Strike 2 FPS reports
+## 🎮 Counter-Strike 2 FPS reports
 
-These are individual community reports, not WineShelf benchmarks. The tests use different wrappers, macOS versions, maps, settings, and measurement methods, so read them as examples rather than a direct ranking or a performance guarantee. Two reports for the M2 MacBook Air show how much results can vary with setup and test conditions.
+These are individual reports from the community, not WineShelf benchmarks. The tests use different wrappers, macOS versions, maps, settings, and measurement methods, so treat them as examples rather than a direct ranking or a performance guarantee. The two M2 Air reports show how much results can vary with setup and test conditions.
 
 | Mac | Reported FPS | Test details | Source |
 | --- | ---: | --- | --- |
@@ -40,9 +47,9 @@ These are individual community reports, not WineShelf benchmarks. The tests use 
 | Base M4 Mac mini | 90–120 FPS | CrossOver with CXPatcher, after a patch; exact settings and test scene were not stated. | [Community report](https://www.reddit.com/r/macgaming/comments/1tni5zl/m4_mac_mini_base_crossover_patched/) |
 | MacBook Pro, M2 Pro, 32 GB | 127.9 FPS in a reported 1,000-frame window | Separate Wine + DXMT + MSync setup; Ancient benchmark map, low settings. This uses a different stack from WineShelf's managed Wine build. | [Measured-results project](https://github.com/piwas-21/cs2-apple-silicon) |
 
-Average FPS alone does not describe smoothness. Frame times, map, resolution, graphics settings, FPS cap, game build, wrapper, and heat can all change the result. For a useful report, include your exact Mac chip and memory, macOS version, Wine or CrossOver setup, map, resolution, graphics preset, and both FPS and frame-time readings.
+> ℹ️ Average FPS alone does not describe smoothness. Frame times, map, resolution, graphics settings, FPS cap, game build, wrapper, and heat can all change the result. A useful report includes the Mac chip and memory, macOS version, Wine or CrossOver setup, map, resolution, graphics preset, FPS, and frame-time readings.
 
-## Download and install
+## 📦 Download and install
 
 1. Download the latest `.dmg` from [GitHub Releases](https://github.com/lAmirshahinxl/WineShelf/releases).
 2. Open the disk image and drag `WineShelf.app` to the Applications shortcut.
@@ -50,7 +57,7 @@ Average FPS alone does not describe smoothness. Frame times, map, resolution, gr
 
 The app is ad-hoc signed and is not notarized by Apple, so macOS may require this one-time approval.
 
-## Set up Wine and Steam
+## 🍷 Set up Wine and Steam
 
 Open **Wine Setup** in WineShelf and follow its status checks:
 
@@ -64,13 +71,13 @@ Open **Wine Setup** in WineShelf and follow its status checks:
 
 Rosetta requires user acceptance of Apple's license, and GStreamer uses Apple's installer. WineShelf guides these steps but cannot accept licenses or administrator prompts for you.
 
-## Add Windows apps
+## ➕ Add Windows apps
 
 Choose **Add Windows App** and select the Windows executable, an initialized Wine prefix (the folder containing `system.reg`), and the `wine` and `wineserver` binaries. WineShelf can discover common Wine locations, including its managed runtime and GameToMac installs.
 
 To create a Steam game shortcut, select the installed Steam executable and its Wine prefix. For a shortcut that launches a specific game, add the game's Steam App ID to the launch arguments. You can also launch Steam without arguments and manage games inside Steam.
 
-## Library data and Wine sessions
+## 🗂️ Library data and Wine sessions
 
 WineShelf stores the library and logs here:
 
@@ -80,7 +87,7 @@ WineShelf stores the library and logs here:
 
 Removing an entry only removes its shortcut from WineShelf; it leaves game files, prefixes, and runtimes on disk. **Stop Wine** sends `wineserver -k` to that entry's prefix, which closes every Wine app sharing that prefix.
 
-## Build from source
+## 🛠️ Build from source
 
 Requirements: macOS 14 or later and Xcode Command Line Tools with Swift 6.
 
@@ -98,7 +105,7 @@ Local builds are ad-hoc signed by default. For direct distribution, sign with a 
 
 Website assets are in [`Assets/Branding/`](Assets/Branding/): the original logo, README banner, 512 px and 192 px icons, Apple touch icon, and 32 px favicon.
 
-## Runtime sources
+## 🔗 Runtime sources
 
 | Component | Source | How WineShelf uses it |
 | --- | --- | --- |
@@ -107,3 +114,7 @@ Website assets are in [`Assets/Branding/`](Assets/Branding/): the original logo,
 | Steam Setup | [Valve](https://store.steampowered.com/about/) | Downloaded from Valve's official site when the user chooses to install Steam. |
 
 WineShelf does not bundle Wine, GStreamer, Steam, game files, or game licenses. Users are responsible for owning their games and following each software's license terms.
+
+## 📄 License
+
+WineShelf is licensed under the [MIT License](LICENSE). This license applies to the WineShelf project; Wine, GStreamer, Steam, and games remain under their own licenses.
