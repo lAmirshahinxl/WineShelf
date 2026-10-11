@@ -157,7 +157,7 @@ struct EntryEditorView: View {
         for key in candidate.environment.keys where !GameEntry.validEnvironmentKey(key) {
             throw WineShelfError.invalidEnvironment(key)
         }
-        guard FileManager.default.isExecutableFile(atPath: candidate.executablePath) else { throw WineShelfError.missingFile(candidate.executablePath) }
+        guard FileManager.default.isReadableFile(atPath: candidate.executablePath) else { throw WineShelfError.missingFile(candidate.executablePath) }
         guard FileManager.default.isExecutableFile(atPath: candidate.winePath) else { throw WineShelfError.missingFile(candidate.winePath) }
         guard FileManager.default.isExecutableFile(atPath: candidate.wineServerPath) else { throw WineShelfError.missingFile(candidate.wineServerPath) }
         if createNewPrefix {

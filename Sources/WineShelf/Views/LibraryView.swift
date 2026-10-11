@@ -7,6 +7,7 @@ struct LibraryView: View {
     @State private var editingEntry: GameEntry?
     @State private var removalCandidate: GameEntry?
     @State private var isShowingRemovalConfirmation = false
+    @State private var isShowingRuntimeSetup = false
 
     var body: some View {
         NavigationSplitView {
@@ -31,8 +32,20 @@ struct LibraryView: View {
             .listStyle(.sidebar)
             .navigationTitle("WineShelf")
             .toolbar {
+                ToolbarItem(placement: .automatic) {
+                    Button {
+                        isShowingRuntimeSetup = true
+                    } label: {
+                        Label("Wine Setup", systemImage: "wineglass")
+                    }
+                    .help("Check or install Wine and its macOS requirements")
+                }
                 ToolbarItem(placement: .primaryAction) {
                     Menu {
+                        Button("Wine Setup…", systemImage: "wineglass") {
+                            isShowingRuntimeSetup = true
+                        }
+                        Divider()
                         Button("Import GameToMac CS2 Setup…", systemImage: "square.and.arrow.down") {
                             library.importCS2()
                         }
@@ -69,6 +82,8 @@ struct LibraryView: View {
                     Text("Import the existing Counter-Strike 2 setup or add a Windows app and its Wine prefix.")
                 } actions: {
                     Menu("Add to Library") {
+                        Button("Set Up Wine Runtime…", systemImage: "wineglass") { isShowingRuntimeSetup = true }
+                        Divider()
                         Button("Import GameToMac CS2 Setup…", systemImage: "square.and.arrow.down") { library.importCS2() }
                         Button("Add Windows App…", systemImage: "plus.app") {
                             editingEntry = nil
@@ -86,6 +101,19 @@ struct LibraryView: View {
                 isShowingEditor = false
             }
             .frame(minWidth: 640, minHeight: 560)
+        }
+        .sheet(isPresented: $isShowingRuntimeSetup) {
+            RuntimeSetupView { steamEntry in
+                if let existing = library.entries.first(where: {
+                    $0.prefixPath == steamEntry.prefixPath && $0.executablePath == steamEntry.executablePath
+                }) {
+                    library.selectedID = existing.id
+                    library.notice = "Steam is already in your WineShelf library."
+                } else {
+                    library.add(steamEntry)
+                    library.notice = "Steam was added. Sign in and install games from Steam."
+                }
+            }
         }
         .alert("Remove this entry?", isPresented: $isShowingRemovalConfirmation, presenting: removalCandidate) { entry in
             Button("Remove Entry", role: .destructive) { library.remove(entry) }

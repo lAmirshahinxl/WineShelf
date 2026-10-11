@@ -31,10 +31,10 @@ enum WineRuntime {
         guard FileManager.default.fileExists(atPath: prefix.appendingPathComponent("system.reg").path) else {
             throw WineShelfError.invalidPrefix(prefix.path)
         }
-        guard FileManager.default.isExecutableFile(atPath: steamExecutable.path) else {
+        guard FileManager.default.isReadableFile(atPath: steamExecutable.path) else {
             throw WineShelfError.missingFile(steamExecutable.path)
         }
-        guard FileManager.default.isExecutableFile(atPath: gameExecutable.path) else {
+        guard FileManager.default.isReadableFile(atPath: gameExecutable.path) else {
             throw WineShelfError.missingFile(gameExecutable.path)
         }
 
@@ -175,7 +175,7 @@ enum WineRuntime {
 
     static func validate(_ entry: GameEntry) throws {
         guard FileManager.default.isExecutableFile(atPath: entry.winePath) else { throw WineShelfError.missingFile(entry.winePath) }
-        guard FileManager.default.isExecutableFile(atPath: entry.executablePath) else { throw WineShelfError.missingFile(entry.executablePath) }
+        guard FileManager.default.isReadableFile(atPath: entry.executablePath) else { throw WineShelfError.missingFile(entry.executablePath) }
         guard FileManager.default.fileExists(atPath: entry.prefixURL.appendingPathComponent("system.reg").path) else {
             throw WineShelfError.invalidPrefix(entry.prefixPath)
         }
