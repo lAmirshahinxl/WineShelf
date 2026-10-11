@@ -27,6 +27,8 @@ final class RuntimeSetupModel: ObservableObject {
     @Published private(set) var isGStreamerInstalled = false
     @Published private(set) var isDownloadingWine = false
     @Published private(set) var isDownloadingGStreamer = false
+    @Published private(set) var isVerifyingDownload = false
+    @Published private(set) var downloadProgress: Double?
     @Published private(set) var isInstallingSteam = false
     @Published private(set) var isPreparingWine = false
     @Published private(set) var statusMessage: String?
@@ -79,7 +81,17 @@ final class RuntimeSetupModel: ObservableObject {
     }
 
     var nextSetupActionTitle: String {
-        if isPreparingWine || isDownloadingWine || isDownloadingGStreamer {
+        if isDownloadingGStreamer {
+            if isVerifyingDownload { return "Verifying GStreamer…" }
+            if let downloadProgress { return "Downloading GStreamer… \(Int(downloadProgress * 100))%" }
+            return "Downloading GStreamer…"
+        }
+        if isDownloadingWine {
+            if isVerifyingDownload { return "Verifying Wine…" }
+            if let downloadProgress { return "Downloading Wine… \(Int(downloadProgress * 100))%" }
+            return "Downloading Wine…"
+        }
+        if isPreparingWine {
             return "Preparing Wine…"
         }
         if automaticSetupPause == .wineApproval {
@@ -151,7 +163,7 @@ final class RuntimeSetupModel: ObservableObject {
 
         if !isGStreamerInstalled {
             await installGStreamer()
-            if errorMessage == nil { automaticSetupPause = .gstreamer }
+            if errorMessage == nil, !Task.isCancelled { automaticSetupPause = .gstreamer }
             return
         }
         if automaticSetupPause == .gstreamer { automaticSetupPause = nil }
@@ -206,8 +218,14 @@ final class RuntimeSetupModel: ObservableObject {
     func installWine() async {
         guard !isDownloadingWine else { return }
         isDownloadingWine = true
-        statusMessage = "Downloading and verifying Wine (Self.wineVersion)…"
-        defer { isDownloadingWine = false }
+        isVerifyingDownload = false
+        downloadProgress = 0
+        statusMessage = "Downloading Wine (\(Self.wineVersion))…"
+        defer {
+            isDownloadingWine = false
+            isVerifyingDownload = false
+            downloadProgress = nil
+        }
 
         do {
             let downloads = try downloadDirectory()
@@ -215,7 +233,20 @@ final class RuntimeSetupModel: ObservableObject {
                 from: Self.wineSource,
                 fileName: "wine-devel-\(Self.wineVersion)-osx64.tar.xz",
                 expectedSHA256: Self.wineSHA256,
-                in: downloads
+                in: downloads,
+                onProgress: { [weak self] received, expected in
+                    let progress = expected > 0 ? min(1, Double(received) / Double(expected)) : nil
+                    Task { @MainActor [weak self] in
+                        guard let self, self.isDownloadingWine, !self.isVerifyingDownload else { return }
+                        self.downloadProgress = progress
+                        self.isVerifyingDownload = false
+                    }
+                },
+                onVerificationStarted: { [weak self] in
+                    self?.downloadProgress = nil
+                    self?.isVerifyingDownload = true
+                    self?.statusMessage = "Verifying Wine (\(Self.wineVersion))…"
+                }
             )
             statusMessage = "Checking the Wine archive…"
             let install = try installWineArchive(archive)
@@ -223,6 +254,7 @@ final class RuntimeSetupModel: ObservableObject {
             selectedRuntimeID = install.winePath
             statusMessage = "Wine is installed. Approve the Wine app in Finder before using it."
         } catch {
+            guard !Task.isCancelled else { return }
             errorMessage = error.localizedDescription
             statusMessage = nil
         }
@@ -231,8 +263,14 @@ final class RuntimeSetupModel: ObservableObject {
     func installGStreamer() async {
         guard !isDownloadingGStreamer else { return }
         isDownloadingGStreamer = true
-        statusMessage = "Downloading and verifying GStreamer (Self.gstreamerVersion)…"
-        defer { isDownloadingGStreamer = false }
+        isVerifyingDownload = false
+        downloadProgress = 0
+        statusMessage = "Downloading GStreamer (\(Self.gstreamerVersion))…"
+        defer {
+            isDownloadingGStreamer = false
+            isVerifyingDownload = false
+            downloadProgress = nil
+        }
 
         do {
             let downloads = try downloadDirectory()
@@ -240,13 +278,27 @@ final class RuntimeSetupModel: ObservableObject {
                 from: Self.gstreamerSource,
                 fileName: "gstreamer-1.0-\(Self.gstreamerVersion)-universal.pkg",
                 expectedSHA256: Self.gstreamerSHA256,
-                in: downloads
+                in: downloads,
+                onProgress: { [weak self] received, expected in
+                    let progress = expected > 0 ? min(1, Double(received) / Double(expected)) : nil
+                    Task { @MainActor [weak self] in
+                        guard let self, self.isDownloadingGStreamer, !self.isVerifyingDownload else { return }
+                        self.downloadProgress = progress
+                        self.isVerifyingDownload = false
+                    }
+                },
+                onVerificationStarted: { [weak self] in
+                    self?.downloadProgress = nil
+                    self?.isVerifyingDownload = true
+                    self?.statusMessage = "Verifying GStreamer (\(Self.gstreamerVersion))…"
+                }
             )
             guard NSWorkspace.shared.open(package) else {
                 throw RuntimeSetupError.install("The verified package is saved here:\n\(package.path)\nOpen it in Finder to continue.")
             }
             statusMessage = "Installer is open. Complete the GStreamer installation, then choose Check again. macOS may ask for an administrator password."
         } catch {
+            guard !Task.isCancelled else { return }
             errorMessage = error.localizedDescription
             statusMessage = nil
         }
@@ -350,22 +402,34 @@ final class RuntimeSetupModel: ObservableObject {
             .appendingPathComponent("WineShelf", isDirectory: true)
     }
 
-    private func verifiedDownload(from source: URL, fileName: String, expectedSHA256: String, in directory: URL) async throws -> URL {
+    private func verifiedDownload(
+        from source: URL,
+        fileName: String,
+        expectedSHA256: String,
+        in directory: URL,
+        onProgress: @escaping @Sendable (Int64, Int64) -> Void = { _, _ in },
+        onVerificationStarted: () -> Void = {}
+    ) async throws -> URL {
         let destination = directory.appendingPathComponent(fileName)
-        if fileManager.fileExists(atPath: destination.path), try sha256(of: destination) == expectedSHA256 {
-            return destination
+        if fileManager.fileExists(atPath: destination.path) {
+            onVerificationStarted()
+            if try sha256(of: destination) == expectedSHA256 {
+                return destination
+            }
         }
         try? fileManager.removeItem(at: destination)
 
         var request = URLRequest(url: source)
-        request.timeoutInterval = 60 * 30
-        let (temporaryURL, response) = try await URLSession.shared.download(for: request)
+        request.timeoutInterval = 90
+        let downloader = ProgressDownloadDelegate(onProgress: onProgress)
+        let (temporaryURL, response) = try await downloader.download(request)
+        defer { try? fileManager.removeItem(at: temporaryURL) }
         guard let response = response as? HTTPURLResponse, (200..<300).contains(response.statusCode) else {
             throw RuntimeSetupError.download("The download server did not return the requested file.")
         }
+        onVerificationStarted()
         let actualHash = try sha256(of: temporaryURL)
         guard actualHash.caseInsensitiveCompare(expectedSHA256) == .orderedSame else {
-            try? fileManager.removeItem(at: temporaryURL)
             throw RuntimeSetupError.integrity(fileName)
         }
         try fileManager.moveItem(at: temporaryURL, to: destination)
@@ -540,6 +604,123 @@ private enum RuntimeDiscovery {
             current.deleteLastPathComponent()
         }
         return nil
+    }
+}
+
+private final class ProgressDownloadDelegate: NSObject, URLSessionDownloadDelegate, @unchecked Sendable {
+    private let onProgress: @Sendable (Int64, Int64) -> Void
+    private let lock = NSLock()
+    private var continuation: CheckedContinuation<(URL, URLResponse), Error>?
+    private var session: URLSession?
+    private var task: URLSessionDownloadTask?
+    private var didComplete = false
+    private var wasCancelled = false
+    private var lastReportedPercent = -1
+
+    init(onProgress: @escaping @Sendable (Int64, Int64) -> Void) {
+        self.onProgress = onProgress
+    }
+
+    func download(_ request: URLRequest) async throws -> (URL, URLResponse) {
+        try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { continuation in
+                lock.lock()
+                self.continuation = continuation
+                lock.unlock()
+
+                let configuration = URLSessionConfiguration.default
+                configuration.timeoutIntervalForRequest = 90
+                configuration.timeoutIntervalForResource = 60 * 30
+                let session = URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
+                let task = session.downloadTask(with: request)
+
+                lock.lock()
+                self.session = session
+                self.task = task
+                let shouldCancel = wasCancelled
+                lock.unlock()
+
+                if shouldCancel {
+                    task.cancel()
+                } else {
+                    task.resume()
+                }
+            }
+        } onCancel: {
+            self.cancel()
+        }
+    }
+
+    func urlSession(
+        _ session: URLSession,
+        downloadTask: URLSessionDownloadTask,
+        didWriteData bytesWritten: Int64,
+        totalBytesWritten: Int64,
+        totalBytesExpectedToWrite: Int64
+    ) {
+        if totalBytesExpectedToWrite > 0 {
+            let percent = Int(Double(totalBytesWritten) / Double(totalBytesExpectedToWrite) * 100)
+            guard percent != lastReportedPercent else { return }
+            lastReportedPercent = percent
+        }
+        onProgress(totalBytesWritten, totalBytesExpectedToWrite)
+    }
+
+    func urlSession(
+        _ session: URLSession,
+        downloadTask: URLSessionDownloadTask,
+        didFinishDownloadingTo location: URL
+    ) {
+        guard let response = downloadTask.response else {
+            finish(.failure(RuntimeSetupError.download("The download finished without a server response.")))
+            return
+        }
+
+        let retainedFile = FileManager.default.temporaryDirectory
+            .appendingPathComponent("WineShelf-download-\(UUID().uuidString)")
+        do {
+            try FileManager.default.moveItem(at: location, to: retainedFile)
+            finish(.success((retainedFile, response)))
+        } catch {
+            do {
+                try FileManager.default.copyItem(at: location, to: retainedFile)
+                finish(.success((retainedFile, response)))
+            } catch {
+                finish(.failure(error))
+            }
+        }
+    }
+
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        if let error {
+            finish(.failure(error))
+        }
+    }
+
+    private func finish(_ result: Result<(URL, URLResponse), Error>) {
+        lock.lock()
+        guard !didComplete else {
+            lock.unlock()
+            return
+        }
+        didComplete = true
+        let continuation = self.continuation
+        self.continuation = nil
+        let session = self.session
+        self.session = nil
+        self.task = nil
+        lock.unlock()
+
+        continuation?.resume(with: result)
+        session?.finishTasksAndInvalidate()
+    }
+
+    private func cancel() {
+        lock.lock()
+        wasCancelled = true
+        let task = self.task
+        lock.unlock()
+        task?.cancel()
     }
 }
 

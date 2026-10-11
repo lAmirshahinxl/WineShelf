@@ -77,7 +77,11 @@ struct RuntimeSetupView: View {
                     }
                 } label: {
                     HStack(spacing: 10) {
-                        if setup.isPreparingWine || setup.isDownloadingWine || setup.isDownloadingGStreamer {
+                        if let progress = setup.downloadProgress {
+                            ProgressView(value: progress)
+                                .controlSize(.small)
+                                .frame(width: 54)
+                        } else if setup.isPreparingWine || setup.isDownloadingWine || setup.isDownloadingGStreamer {
                             ProgressView().controlSize(.small)
                         } else {
                             Image(systemName: "wand.and.stars")
