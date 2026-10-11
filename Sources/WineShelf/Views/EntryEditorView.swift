@@ -15,6 +15,7 @@ struct EntryEditorView: View {
     @State private var argumentText = ""
     @State private var environmentText = ""
     @State private var createNewPrefix = false
+    @State private var isShowingAdvancedSettings = false
     @State private var isPreparing = false
     @State private var errorMessage: String?
 
@@ -26,7 +27,7 @@ struct EntryEditorView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(isEditing ? "Edit Wine App" : "Add Windows App")
                         .font(.title2.weight(.semibold))
-                    Text("A library entry keeps the app, prefix, and launch options together.")
+                    Text("Add an executable to your library. Wine and launch settings are available below.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -44,24 +45,37 @@ struct EntryEditorView: View {
                     }
                 }
 
-                Section("WINE") {
-                    PathField(title: "Wine prefix", path: $prefixPath, buttonTitle: "Choose…") { chooseDirectory(for: $prefixPath) }
-                    Toggle("Create a new prefix with wineboot", isOn: $createNewPrefix)
-                        .disabled(isEditing)
-                    PathField(title: "Wine binary", path: $winePath, buttonTitle: "Choose…") { chooseFile(for: $winePath, title: "Choose the Wine binary") }
-                    PathField(title: "Wineserver binary", path: $wineServerPath, buttonTitle: "Choose…") { chooseFile(for: $wineServerPath, title: "Choose the wineserver binary") }
-                }
+                Section {
+                    DisclosureGroup(isExpanded: $isShowingAdvancedSettings) {
+                        VStack(alignment: .leading, spacing: 18) {
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text("Wine").font(.headline)
+                                PathField(title: "Wine prefix", path: $prefixPath, buttonTitle: "Choose…") { chooseDirectory(for: $prefixPath) }
+                                Toggle("Create a new prefix with wineboot", isOn: $createNewPrefix)
+                                    .disabled(isEditing)
+                                PathField(title: "Wine binary", path: $winePath, buttonTitle: "Choose…") { chooseFile(for: $winePath, title: "Choose the Wine binary") }
+                                PathField(title: "Wineserver binary", path: $wineServerPath, buttonTitle: "Choose…") { chooseFile(for: $wineServerPath, title: "Choose the wineserver binary") }
+                            }
 
-                Section("LAUNCH OPTIONS") {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Arguments (one per line)").font(.subheadline)
-                        TextEditor(text: $argumentText).font(.system(.body, design: .monospaced)).frame(minHeight: 62, maxHeight: 90)
-                            .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(.quaternary))
-                    }
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Environment overrides (KEY=VALUE, one per line)").font(.subheadline)
-                        TextEditor(text: $environmentText).font(.system(.body, design: .monospaced)).frame(minHeight: 70, maxHeight: 112)
-                            .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(.quaternary))
+                            Divider()
+
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text("Launch options").font(.headline)
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Text("Arguments (one per line)").font(.subheadline)
+                                    TextEditor(text: $argumentText).font(.system(.body, design: .monospaced)).frame(minHeight: 62, maxHeight: 90)
+                                        .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(.quaternary))
+                                }
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Text("Environment overrides (KEY=VALUE, one per line)").font(.subheadline)
+                                    TextEditor(text: $environmentText).font(.system(.body, design: .monospaced)).frame(minHeight: 70, maxHeight: 112)
+                                        .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(.quaternary))
+                                }
+                            }
+                        }
+                        .padding(.top, 10)
+                    } label: {
+                        Label("Advanced Wine and launch options", systemImage: "slider.horizontal.3")
                     }
                 }
             }
@@ -93,6 +107,7 @@ struct EntryEditorView: View {
     }
 
     private func loadEntry() {
+        isShowingAdvancedSettings = isEditing
         guard let entry else { return }
         name = entry.name
         executablePath = entry.executablePath

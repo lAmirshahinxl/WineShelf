@@ -1,5 +1,7 @@
-WineShelf is an early beta. Download and open the `.dmg`, then drag `WineShelf.app` to the Applications shortcut. The app is ad-hoc signed and has not been notarized by Apple. On first launch, Control-click `WineShelf.app` in Finder, choose **Open**, and confirm the macOS prompt.
+This release makes first-time Wine setup more direct. Open Wine Setup and WineShelf automatically checks the Mac, downloads and verifies missing components, and continues after the required macOS steps.
 
-The first-run Wine Setup checks or guides users through Rosetta, the official GStreamer installer, and a checksum-verified Wine runtime download. Wine Setup also installs Valve's Steam Setup into a separate Wine prefix.
+The app now keeps manual Wine paths and launch options under Advanced settings, while direct `.exe` launch remains available from the library.
 
-The Wine runtime is a third-party x86_64 build. On Apple silicon it requires Rosetta. WineShelf does not bundle Wine, GStreamer, Steam, or game files.
+On Apple silicon, Rosetta still requires accepting Apple's license in Terminal. GStreamer uses Apple's Installer, and Gatekeeper may ask you to approve Wine in Finder. WineShelf guides these steps but does not bypass macOS security prompts.
+
+Download the universal macOS `.dmg`, open it, and drag `WineShelf.app` to Applications. This build is ad-hoc signed and is not notarized by Apple, so macOS may require a one-time approval for WineShelf itself.

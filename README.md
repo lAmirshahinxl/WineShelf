@@ -62,17 +62,17 @@ The app is ad-hoc signed and is not notarized by Apple, so macOS may require thi
 
 ## 🍷 Set up Wine and Steam
 
-Open **Wine Setup** in WineShelf and follow its status checks:
+Open **Wine Setup** and WineShelf starts checking this Mac automatically. It detects installed components, downloads and verifies missing Wine support, and continues when you return from the required macOS steps.
 
 | Requirement | WineShelf action |
 | --- | --- |
-| Rosetta 2 | On Apple silicon, WineShelf provides the install command. Run it in Terminal and accept Apple's license. |
-| GStreamer | Downloads the official package, checks its SHA-256 digest, then opens Apple's Installer. The installer may ask for an administrator password. |
-| Wine | Downloads the pinned x86_64 build, verifies its SHA-256 digest, and installs it under `~/Library/Application Support/WineShelf/Runtimes/`. |
-| macOS approval | If Gatekeeper asks, approve the Wine runtime through Finder's **Open** command. WineShelf does not remove quarantine or disable Gatekeeper. |
+| Rosetta 2 | On Apple silicon, WineShelf opens Terminal with the install command ready. Run it and accept Apple's license. |
+| GStreamer | WineShelf downloads the official package, checks its SHA-256 digest, and opens Apple's Installer. Complete the installer; it may ask for an administrator password. |
+| Wine | WineShelf downloads the pinned x86_64 build, verifies its SHA-256 digest, and installs it under `~/Library/Application Support/WineShelf/Runtimes/`. |
+| macOS approval | If Gatekeeper asks, WineShelf opens the runtime in Finder. Control-click it, choose **Open**, confirm, then continue in WineShelf. |
 | Steam | Downloads Valve's official Steam Setup and installs it into a separate Wine prefix. Sign in and install games inside Steam. |
 
-Rosetta requires user acceptance of Apple's license, and GStreamer uses Apple's installer. WineShelf guides these steps but cannot accept licenses or administrator prompts for you.
+WineShelf begins setup when you open this screen and resumes after Rosetta or GStreamer is installed. Apple still requires you to accept Rosetta's license, complete the GStreamer installer, and approve Wine in Finder if Gatekeeper prompts.
 
 ## ➕ Add Windows apps
 

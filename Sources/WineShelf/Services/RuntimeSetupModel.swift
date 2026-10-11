@@ -13,6 +13,12 @@ struct DetectedWineRuntime: Identifiable, Hashable {
     var bundleURL: URL? { bundlePath.map { URL(fileURLWithPath: $0, isDirectory: true) } }
 }
 
+private enum AutomaticSetupPause: Equatable {
+    case rosetta
+    case gstreamer
+    case wineApproval
+}
+
 @MainActor
 final class RuntimeSetupModel: ObservableObject {
     @Published private(set) var runtimes: [DetectedWineRuntime] = []
@@ -22,8 +28,12 @@ final class RuntimeSetupModel: ObservableObject {
     @Published private(set) var isDownloadingWine = false
     @Published private(set) var isDownloadingGStreamer = false
     @Published private(set) var isInstallingSteam = false
+    @Published private(set) var isPreparingWine = false
     @Published private(set) var statusMessage: String?
     @Published var errorMessage: String?
+
+    private var automaticSetupPause: AutomaticSetupPause?
+    private var isAutomaticSetupActive = false
 
     private let fileManager = FileManager.default
 
@@ -34,17 +44,63 @@ final class RuntimeSetupModel: ObservableObject {
     static let gstreamerSHA256 = "529fdf4a4027d942e59b5b3564f6400adaa008f63ce5f3fed4ffe35d73911994"
     static let gstreamerSource = URL(string: "https://gstreamer.freedesktop.org/data/pkg/osx/1.28.7/gstreamer-1.0-1.28.7-universal.pkg")!
     static let steamSetupSource = URL(string: "https://cdn.fastly.steamstatic.com/client/installer/SteamSetup.exe")!
+    private static let approvedRuntimePathsKey = "WineShelf.approvedRuntimePaths"
 
     static func runtimeReadyForDirectLaunch() -> DetectedWineRuntime? {
         let setup = RuntimeSetupModel()
         guard let runtime = setup.selectedRuntime else { return nil }
         guard !setup.isAppleSilicon || setup.isRosettaAvailable else { return nil }
         guard setup.isGStreamerInstalled else { return nil }
+        guard !setup.requiresManualWineApproval else { return nil }
         return runtime
     }
 
     var selectedRuntime: DetectedWineRuntime? {
         runtimes.first { $0.id == selectedRuntimeID } ?? runtimes.first
+    }
+
+    var isReadyForWindowsApps: Bool {
+        (!isAppleSilicon || isRosettaAvailable)
+            && isGStreamerInstalled
+            && selectedRuntime != nil
+            && automaticSetupPause != .wineApproval
+            && !requiresManualWineApproval
+    }
+
+    var isWaitingForWineApproval: Bool { automaticSetupPause == .wineApproval }
+    var isWaitingForGStreamerInstaller: Bool { automaticSetupPause == .gstreamer }
+
+    private var requiresManualWineApproval: Bool {
+        guard let runtime = selectedRuntime,
+              let bundlePath = runtime.bundlePath,
+              bundlePath.contains("/WineShelf/Runtimes/") else { return false }
+        let approvedPaths = UserDefaults.standard.stringArray(forKey: Self.approvedRuntimePathsKey) ?? []
+        return !approvedPaths.contains(runtime.winePath)
+    }
+
+    var nextSetupActionTitle: String {
+        if isPreparingWine || isDownloadingWine || isDownloadingGStreamer {
+            return "Preparing Wine…"
+        }
+        if automaticSetupPause == .wineApproval {
+            return "Continue after Approval"
+        }
+        if automaticSetupPause == .gstreamer {
+            return "Open GStreamer Installer"
+        }
+        if automaticSetupPause == .rosetta {
+            return "Continue Rosetta Setup"
+        }
+        if isAppleSilicon && !isRosettaAvailable {
+            return "Set Up Rosetta"
+        }
+        if !isGStreamerInstalled {
+            return "Install Required Components"
+        }
+        if selectedRuntime == nil {
+            return "Install Wine"
+        }
+        return "Check Setup"
     }
 
     var isAppleSilicon: Bool {
@@ -69,6 +125,82 @@ final class RuntimeSetupModel: ObservableObject {
         }
         isRosettaAvailable = !isAppleSilicon || fileManager.fileExists(atPath: "/Library/Apple/usr/libexec/oah/libRosettaRuntime")
         isGStreamerInstalled = fileManager.fileExists(atPath: "/Library/Frameworks/GStreamer.framework/Versions/Current")
+    }
+
+    func prepareWineAutomatically() async {
+        if automaticSetupPause == .wineApproval {
+            revealSelectedRuntime()
+            return
+        }
+        guard !isPreparingWine else { return }
+        isPreparingWine = true
+        isAutomaticSetupActive = true
+        defer { isPreparingWine = false }
+
+        errorMessage = nil
+        refresh()
+
+        if isAppleSilicon && !isRosettaAvailable {
+            if automaticSetupPause != .rosetta {
+                automaticSetupPause = .rosetta
+            }
+            openRosettaInstructions()
+            return
+        }
+        if automaticSetupPause == .rosetta { automaticSetupPause = nil }
+
+        if !isGStreamerInstalled {
+            await installGStreamer()
+            if errorMessage == nil { automaticSetupPause = .gstreamer }
+            return
+        }
+        if automaticSetupPause == .gstreamer { automaticSetupPause = nil }
+
+        if selectedRuntime == nil {
+            await installWine()
+            guard errorMessage == nil, selectedRuntime != nil else { return }
+        }
+
+        if requiresManualWineApproval {
+            automaticSetupPause = .wineApproval
+            revealSelectedRuntime()
+            statusMessage = "In Finder, Control-click the Wine app, choose Open, and confirm the macOS prompt. Then return here and continue after approval."
+            return
+        }
+
+        automaticSetupPause = nil
+        isAutomaticSetupActive = false
+        statusMessage = "Wine and its required components are ready for Windows apps."
+    }
+
+    func resumeAutomaticSetupAfterSystemStep() async {
+        guard isAutomaticSetupActive, !isPreparingWine else { return }
+        refresh()
+
+        switch automaticSetupPause {
+        case .rosetta where isRosettaAvailable:
+            automaticSetupPause = nil
+        case .gstreamer where isGStreamerInstalled:
+            automaticSetupPause = nil
+        default:
+            return
+        }
+
+        await prepareWineAutomatically()
+    }
+
+    func continueAfterWineApproval() {
+        guard automaticSetupPause == .wineApproval else { return }
+        if let path = selectedRuntime?.winePath {
+            var approvedPaths = UserDefaults.standard.stringArray(forKey: Self.approvedRuntimePathsKey) ?? []
+            if !approvedPaths.contains(path) {
+                approvedPaths.append(path)
+                UserDefaults.standard.set(approvedPaths, forKey: Self.approvedRuntimePathsKey)
+            }
+        }
+        automaticSetupPause = nil
+        isAutomaticSetupActive = false
+        statusMessage = "Wine setup is complete. You can now add Windows apps or install Steam."
     }
 
     func installWine() async {
@@ -195,7 +327,8 @@ final class RuntimeSetupModel: ObservableObject {
     func openRosettaInstructions() {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString("softwareupdate --install-rosetta", forType: .string)
-        statusMessage = "Copied the command. Run it in Terminal and accept Apple's license when prompted, then choose Check again."
+        _ = NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Applications/Utilities/Terminal.app", isDirectory: true))
+        statusMessage = "Terminal is open and the Rosetta command is copied. Paste it, accept Apple's license, then return here; WineShelf will continue setup."
     }
 
     func openWineSource() {
