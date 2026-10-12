@@ -16,6 +16,7 @@
     <link rel="canonical" href="https://wineshelf.site/">
     <link rel="stylesheet" href="/styles.css?v=source">
     <link rel="stylesheet" href="/game-carousel.css?v=source">
+    <link rel="stylesheet" href="/performance-chart.css?v=source">
     <script src="/game-carousel.js?v=source" defer></script>
   </head>
   <body>
@@ -193,6 +194,71 @@
             <h2 id="performance-title">What players have reported.</h2>
           </div>
         </div>
+
+        <figure class="performance-chart" aria-labelledby="fps-chart-title" aria-describedby="fps-chart-note">
+          <figcaption class="fps-chart-caption">
+            <div>
+              <p class="fps-chart-kicker">FPS snapshots</p>
+              <h3 id="fps-chart-title">A quick read across reported results.</h3>
+              <p id="fps-chart-note">Reports use different Macs, settings, and Wine-based tools, so treat these as snapshots rather than a controlled comparison.</p>
+            </div>
+            <span class="fps-chart-scale">Scale · 0–140 FPS</span>
+          </figcaption>
+
+          <div class="fps-chart-axis" aria-hidden="true">
+            <span>Game</span>
+            <div class="fps-axis-values"><span>0</span><span>35</span><span>70</span><span>105</span><span>140 FPS</span></div>
+            <span>Reported</span>
+          </div>
+
+          <ul class="fps-chart-rows" aria-label="Reported frame rates by game">
+            <li class="fps-chart-row">
+              <span class="fps-chart-game">Counter-Strike 2</span>
+              <span class="fps-track" aria-hidden="true"><span class="fps-fill" style="--fps-length: 21.4%"></span><span class="fps-range" style="--fps-start: 21.4%; --fps-length: 70%"></span></span>
+              <span class="fps-chart-value">30–128 <small>range</small></span>
+            </li>
+            <li class="fps-chart-row">
+              <span class="fps-chart-game">Dota 2</span>
+              <span class="fps-track" aria-hidden="true"><span class="fps-fill fps-point" style="--fps-length: 21.7%"></span></span>
+              <span class="fps-chart-value">30.4 <small>avg</small></span>
+            </li>
+            <li class="fps-chart-row">
+              <span class="fps-chart-game">Cyberpunk 2077</span>
+              <span class="fps-track" aria-hidden="true"><span class="fps-fill fps-point" style="--fps-length: 35.7%"></span></span>
+              <span class="fps-chart-value">50 <small>median</small></span>
+            </li>
+            <li class="fps-chart-row">
+              <span class="fps-chart-game">GTA V · Legacy</span>
+              <span class="fps-track" aria-hidden="true"><span class="fps-fill" style="--fps-length: 50%"></span><span class="fps-range" style="--fps-start: 50%; --fps-length: 7.1%"></span></span>
+              <span class="fps-chart-value">70–80 <small>range</small></span>
+            </li>
+            <li class="fps-chart-row">
+              <span class="fps-chart-game">Red Dead Redemption 2</span>
+              <span class="fps-track" aria-hidden="true"><span class="fps-fill fps-point" style="--fps-length: 39.3%"></span></span>
+              <span class="fps-chart-value">55 <small>median</small></span>
+            </li>
+            <li class="fps-chart-row">
+              <span class="fps-chart-game">Baldur’s Gate 3</span>
+              <span class="fps-track" aria-hidden="true"><span class="fps-fill fps-point" style="--fps-length: 42.9%"></span></span>
+              <span class="fps-chart-value">60 <small>median</small></span>
+            </li>
+            <li class="fps-chart-row">
+              <span class="fps-chart-game">The Witcher 3</span>
+              <span class="fps-track" aria-hidden="true"><span class="fps-fill" style="--fps-length: 28.6%"></span><span class="fps-range" style="--fps-start: 28.6%; --fps-length: 14.3%"></span></span>
+              <span class="fps-chart-value">40–60 <small>range</small></span>
+            </li>
+            <li class="fps-chart-row">
+              <span class="fps-chart-game">Elden Ring</span>
+              <span class="fps-track" aria-hidden="true"><span class="fps-fill" style="--fps-length: 35.7%"></span><span class="fps-range" style="--fps-start: 35.7%; --fps-length: 7.2%"></span></span>
+              <span class="fps-chart-value">50–60 <small>range</small></span>
+            </li>
+          </ul>
+
+          <div class="fps-chart-legend" role="group" aria-label="Chart legend">
+            <span><i class="fps-legend-fill" aria-hidden="true"></i> FPS to the reported value</span>
+            <span><i class="fps-legend-range" aria-hidden="true"></i> Spread between reported low and high</span>
+          </div>
+        </figure>
 
         <div class="performance-table-wrap">
           <table class="performance-table">
