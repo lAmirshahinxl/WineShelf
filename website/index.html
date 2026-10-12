@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#071638">
+    <meta name="description" content="WineShelf prepares Wine for macOS, guides Steam and Windows app setup, and keeps games and launch options in one library.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="WineShelf — Your Windows games, at home on Mac">
+    <meta property="og:description" content="Prepare Wine, set up Steam or Windows apps, and manage game prefixes and launch options from one Mac library.">
+    <meta property="og:url" content="https://wineshelf.site/">
+    <meta property="og:image" content="https://wineshelf.site/assets/game-shelf.png">
+    <title>WineShelf — Your Windows games, at home on Mac</title>
+    <link rel="icon" type="image/png" href="/assets/favicon-32.png">
+    <link rel="apple-touch-icon" href="/assets/wineshelf-icon.png">
+    <link rel="canonical" href="https://wineshelf.site/">
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <div class="header-inner shell">
+        <a class="brand" href="#top" aria-label="WineShelf home">
+          <img src="/assets/wineshelf-icon.png" alt="" width="42" height="42">
+          <span>Wine<span class="brand-light">Shelf</span></span>
+        </a>
+
+        <nav class="main-nav" aria-label="Main navigation">
+          <a href="#features">Features</a>
+          <a href="#setup">How it works</a>
+          <a href="#performance">Performance</a>
+          <a href="#compatibility">Compatibility</a>
+        </nav>
+
+        <a class="header-download" href="https://github.com/lAmirshahinxl/WineShelf/releases/latest">
+          Download <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero shell" id="top" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span> A Windows game library for macOS</p>
+          <h1 id="hero-title">Your Windows games,<br><span>at home on Mac.</span></h1>
+          <p class="hero-description">
+            Wine translates Windows app calls for macOS. WineShelf prepares the runtime, guides setup, and keeps your games and launch options together in one native Mac library.
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="https://github.com/lAmirshahinxl/WineShelf/releases/latest">
+              Get WineShelf <span aria-hidden="true">↗</span>
+            </a>
+            <a class="button button-quiet" href="https://github.com/lAmirshahinxl/WineShelf">
+              Explore the project <span aria-hidden="true">→</span>
+            </a>
+          </div>
+          <p class="hero-note">macOS 14 or later <span aria-hidden="true">·</span> Intel and Apple silicon</p>
+        </div>
+
+        <div class="hero-art" aria-label="WineShelf game shelf illustration">
+          <div class="art-frame">
+            <div class="art-topline">
+              <span class="art-dot" aria-hidden="true"></span>
+              <span>YOUR LIBRARY, REIMAGINED</span>
+              <span class="art-topline-state">READY WHEN YOU ARE</span>
+            </div>
+            <img src="/assets/game-shelf.png" alt="Illustration of a shelf holding Windows games and Steam, with a glowing doorway between them">
+            <div class="art-caption">
+              <span class="caption-mark" aria-hidden="true">W</span>
+              <span><strong>One shelf.</strong><br>More ways to play.</span>
+              <span class="caption-arrow" aria-hidden="true">↗</span>
+            </div>
+          </div>
+          <span class="art-orbit orbit-one" aria-hidden="true"></span>
+          <span class="art-orbit orbit-two" aria-hidden="true"></span>
+        </div>
+      </section>
+
+      <div class="capability-ribbon" aria-label="WineShelf highlights">
+        <div class="ribbon-inner shell">
+          <span><i class="ribbon-mark mark-cyan" aria-hidden="true"></i> Native macOS app</span>
+          <span><i class="ribbon-mark mark-coral" aria-hidden="true"></i> Managed Wine setup</span>
+          <span><i class="ribbon-mark mark-white" aria-hidden="true"></i> Free and open source</span>
+        </div>
+      </div>
+
+      <section class="features section shell" id="features" aria-labelledby="features-title">
+        <div class="section-heading">
+          <p class="eyebrow eyebrow-dark">Why WineShelf</p>
+          <h2 id="features-title">Wine does the translation.<br><span>We handle the setup.</span></h2>
+          <p class="section-intro">Wine is a compatibility layer that lets Windows apps run on macOS. WineShelf checks your Mac, prepares a verified Wine runtime and required components, guides Steam setup, and keeps Windows apps and launch options in one library. Advanced per-app settings let you tune the setup for each title.</p>
+        </div>
+
+        <div class="feature-list">
+          <article class="feature-row">
+            <div class="feature-icon icon-runtime" aria-hidden="true">
+              <svg viewBox="0 0 48 48" fill="none"><path d="M24 5.5 40 14.75v18.5L24 42.5 8 33.25v-18.5L24 5.5Z"/><path d="m8.75 15.2 15.25 8.9 15.25-8.9M24 24.3v17.1M16 10.2l16 9.3"/></svg>
+            </div>
+            <div class="feature-body">
+              <p class="feature-kicker">Wine, without the scavenger hunt</p>
+              <h3>Setup that checks the details.</h3>
+              <p>WineShelf checks your Mac, downloads its pinned Wine build, verifies the file, and guides you through required setup.</p>
+            </div>
+            <span class="feature-side-note">WINE SETUP</span>
+          </article>
+
+          <article class="feature-row">
+            <div class="feature-icon icon-steam" aria-hidden="true">
+              <svg viewBox="0 0 48 48" fill="none"><circle cx="29.5" cy="17.5" r="8.5"/><path d="m23.5 23.5-8.25 8.25M11.5 24a13 13 0 1 0 12.5-13M8 26.5l7.25 5.25 5.25 7.25"/><circle cx="29.5" cy="17.5" r="2.5"/></svg>
+            </div>
+            <div class="feature-body">
+              <p class="feature-kicker">Your Steam library, within reach</p>
+              <h3>Find a game. Start the install.</h3>
+              <p>Browse a curated selection, open the game's Steam install page in Wine, and get a library shortcut when it finishes.</p>
+            </div>
+            <span class="feature-side-note">STEAM GAMES</span>
+          </article>
+
+          <article class="feature-row">
+            <div class="feature-icon icon-exe" aria-hidden="true">
+              <svg viewBox="0 0 48 48" fill="none"><path d="M11 7.5h17l9 9v24H11v-33Z"/><path d="M28 7.5v9h9M17 25h14M17 31h14M17 37h8"/><path d="M32 29.5h9M36.5 25v9"/></svg>
+            </div>
+            <div class="feature-body">
+              <p class="feature-kicker">Bring your own Windows apps</p>
+              <h3>Drop in an .exe and go.</h3>
+              <p>Choose or drop a Windows executable. WineShelf prepares a fresh prefix, launches it, and adds it to your library.</p>
+            </div>
+            <span class="feature-side-note">WINDOWS APPS</span>
+          </article>
+
+          <article class="feature-row">
+            <div class="feature-icon icon-options" aria-hidden="true">
+              <svg viewBox="0 0 48 48" fill="none"><path d="M9 14h30M9 24h30M9 34h30"/><circle cx="18" cy="14" r="4"/><circle cx="31" cy="24" r="4"/><circle cx="21" cy="34" r="4"/></svg>
+            </div>
+            <div class="feature-body">
+              <p class="feature-kicker">Fine-tune a game's launch</p>
+              <h3>Options stay with each app.</h3>
+              <p>Set launch arguments and environment options for individual entries, then keep their Wine setup and logs close at hand.</p>
+            </div>
+            <span class="feature-side-note">LAUNCH OPTIONS</span>
+          </article>
+        </div>
+      </section>
+
+      <section class="setup-section" id="setup" aria-labelledby="setup-title">
+        <div class="setup-inner shell">
+          <div class="setup-heading">
+            <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span> Your route from setup to launch</p>
+            <h2 id="setup-title">Start with what you have.<br><span>Build your shelf from there.</span></h2>
+          </div>
+          <div class="setup-steps">
+            <article class="setup-step">
+              <span class="step-label">FIRST, THE FOUNDATION</span>
+              <div class="step-index">A<span>.</span></div>
+              <h3>Prepare Wine</h3>
+              <p>WineShelf walks you through the Mac requirements and gets its managed Wine runtime ready.</p>
+            </article>
+            <article class="setup-step">
+              <span class="step-label">THEN, YOUR GAMES</span>
+              <div class="step-index">B<span>.</span></div>
+              <h3>Install or add</h3>
+              <p>Continue with Steam, add a Windows executable, or connect an existing Wine setup.</p>
+            </article>
+            <article class="setup-step">
+              <span class="step-label">FINALLY, YOUR LIBRARY</span>
+              <div class="step-index">C<span>.</span></div>
+              <h3>Launch from one shelf</h3>
+              <p>Keep your Windows apps and Steam shortcuts together with their prefixes and launch settings.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="performance-section section shell" id="performance" aria-labelledby="performance-title">
+        <div class="performance-heading">
+          <div class="performance-heading-copy">
+            <p class="eyebrow eyebrow-dark">Player reports · Wine-based setups</p>
+            <h2 id="performance-title">What players have reported.</h2>
+          </div>
+          <p class="performance-note">Community reports, not WineShelf benchmarks. Most use CrossOver or custom graphics layers. FPS varies with your Mac, resolution, settings, game version, and Wine setup.</p>
+        </div>
+
+        <div class="performance-table-wrap">
+          <table class="performance-table">
+            <caption class="visually-hidden">Community-reported frame rates for Windows games running in Wine-based configurations.</caption>
+            <thead>
+              <tr>
+                <th scope="col">Game</th>
+                <th scope="col">Community FPS reports by Mac and setup</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Counter-Strike 2</th>
+                <td>
+                  <ul class="performance-reports">
+                    <li><span class="report-configuration">M2 MacBook Air</span><span class="fps-value">30–40 FPS</span><a href="https://www.reddit.com/r/macgaming/comments/1wd02i4/cs2_on_mac/" aria-label="Counter-Strike 2 report for M2 MacBook Air">Report ↗</a></li>
+                    <li><span class="report-configuration">M2 MacBook Air · 8 GB</span><span class="fps-value">About 100 FPS</span><a href="https://www.reddit.com/r/cs2/comments/1wsc8hk/how_rare_is_this/" aria-label="Counter-Strike 2 report for M2 MacBook Air with 8 GB">Report ↗</a></li>
+                    <li><span class="report-configuration">14-inch MacBook Pro · M1 Pro · 16 GB · CrossOver</span><span class="fps-value">75–115 FPS</span><a href="https://www.reddit.com/r/macgaming/comments/1waxdn9/cs2_crossover_inconsistent_frame_times/" aria-label="Counter-Strike 2 CrossOver report for 14-inch MacBook Pro with M1 Pro and 16 GB">Report ↗</a></li>
+                    <li><span class="report-configuration">Base M4 Mac mini · CrossOver + CXPatcher</span><span class="fps-value">90–120 FPS</span><a href="https://www.reddit.com/r/macgaming/comments/1tni5zl/m4_mac_mini_base_crossover_patched/" aria-label="Counter-Strike 2 report for base M4 Mac mini using CrossOver and CXPatcher">Report ↗</a></li>
+                    <li><span class="report-configuration">MacBook Pro · M2 Pro · 32 GB · Wine + DXMT</span><span class="fps-value">About 128 FPS</span><a href="https://github.com/piwas-21/cs2-apple-silicon/blob/main/docs/project/measured-results.md" aria-label="Counter-Strike 2 Wine and DXMT benchmark for MacBook Pro with M2 Pro and 32 GB">Benchmark ↗</a></li>
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Dota 2</th>
+                <td><ul class="performance-reports"><li><span class="report-configuration">M5 MacBook Air · 32 GB · Windows client via CrossOver Intel, Rosetta, and DXMT · fixed replay</span><span class="fps-value">30.4 avg FPS</span><a href="https://www.blendlogic.com/posts/crossover-arm64-fex-mac-gaming.html" aria-label="Dota 2 fixed-replay benchmark on M5 MacBook Air using the Windows client through CrossOver Intel, Rosetta, and DXMT">Benchmark ↗</a></li></ul></td>
+              </tr>
+              <tr>
+                <th scope="row">Cyberpunk 2077</th>
+                <td><ul class="performance-reports"><li><span class="report-configuration">Apple silicon · CrossOver · 19 reports across M1–M5</span><span class="fps-value">Median 50 FPS</span><a href="https://macgamingdb.app/games/cyberpunk-2077" aria-label="Cyberpunk 2077 CrossOver community median from 19 Apple silicon reports">Community data ↗</a></li></ul></td>
+              </tr>
+              <tr>
+                <th scope="row">Grand Theft Auto V (Legacy)</th>
+                <td><ul class="performance-reports"><li><span class="report-configuration">M1 MacBook Air · 8 GB · Steam + CrossOver 23.7 · custom DXVK</span><span class="fps-value">70–80 FPS</span><a href="https://www.reddit.com/r/macgaming/comments/1anh0gd/stutter_on_gta_v_crossover_macbook_m1_8gb/" aria-label="Grand Theft Auto V Legacy report for M1 MacBook Air with 8 GB">Report ↗</a></li></ul></td>
+              </tr>
+              <tr>
+                <th scope="row">Red Dead Redemption 2</th>
+                <td><ul class="performance-reports"><li><span class="report-configuration">Apple silicon · CrossOver · 45 reports across M1–M5</span><span class="fps-value">Median 55 FPS</span><a href="https://macgamingdb.app/games/red-dead-redemption-2" aria-label="Red Dead Redemption 2 CrossOver community median from 45 Apple silicon reports">Community data ↗</a></li></ul></td>
+              </tr>
+              <tr>
+                <th scope="row">Baldur’s Gate 3</th>
+                <td><ul class="performance-reports"><li><span class="report-configuration">Apple silicon · CrossOver · 3 reports across M1–M5</span><span class="fps-value">Median 60 FPS</span><a href="https://macgamingdb.app/games/baldur-s-gate-3" aria-label="Baldur’s Gate 3 CrossOver community median from 3 Apple silicon reports">Community data ↗</a></li></ul></td>
+              </tr>
+              <tr>
+                <th scope="row">The Witcher 3</th>
+                <td><ul class="performance-reports"><li><span class="report-configuration">M1 MacBook Air · 8 GB · Steam + CrossOver · medium settings</span><span class="fps-value">40–60 FPS</span><a href="https://applesilicongames.com/games/GdnUQRXMTXJshNj2xHHPq3/witcher-3" aria-label="The Witcher 3 report for M1 MacBook Air with 8 GB at medium settings">Report ↗</a></li></ul></td>
+              </tr>
+              <tr>
+                <th scope="row">Elden Ring</th>
+                <td><ul class="performance-reports"><li><span class="report-configuration">Base M4 Mac mini · 16 GB · CrossOver + D3DMetal</span><span class="fps-value">50–60 FPS</span><a href="https://macgamingdb.app/games/elden-ring" aria-label="Elden Ring reports for base M4 Mac mini with 16 GB using CrossOver and D3DMetal">Reports ↗</a></li></ul></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="performance-footnote">WineShelf uses its own pinned Wine runtime. The reports above show other specific Wine-based configurations and don't predict WineShelf results.</p>
+      </section>
+
+      <section class="compatibility-section section shell" id="compatibility" aria-labelledby="compatibility-title">
+        <div class="compatibility-symbol" aria-hidden="true">
+          <span class="compat-ring"></span>
+          <span class="compat-core">!</span>
+        </div>
+        <div class="compatibility-copy">
+          <p class="eyebrow eyebrow-dark">A clear note before you download</p>
+          <h2 id="compatibility-title">Every game is<br><span>its own story.</span></h2>
+          <p>Wine does not cover every Windows API or graphics feature, and game-specific launchers, DRM, or anti-cheat can also block a title. WineShelf checks and prepares the runtime, guides required components, and keeps prefixes and launch options together so you can tune a supported setup. Some games still need extra work or may not run, and FPS varies by game and Mac. WineShelf does not include game files or licenses.</p>
+          <a class="text-link" href="#performance">See community FPS reports <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="compatibility-stamp" aria-hidden="true">
+          <span>MAC</span><b>≠</b><span>WINDOWS</span>
+        </div>
+      </section>
+
+      <section class="download-section" aria-labelledby="download-title">
+        <div class="download-inner shell">
+          <div>
+            <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span> Your next game night starts here</p>
+            <h2 id="download-title">Make room<br>on your shelf.</h2>
+            <p>WineShelf is free to download for macOS 14 and later.</p>
+          </div>
+          <div class="download-action">
+            <a class="button button-download" href="https://github.com/lAmirshahinxl/WineShelf/releases/latest">Download the latest release <span aria-hidden="true">↗</span></a>
+            <p>Universal app for Intel and Apple silicon Macs.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-inner shell">
+        <a class="brand footer-brand" href="#top" aria-label="WineShelf home">
+          <img src="/assets/wineshelf-icon.png" alt="" width="36" height="36">
+          <span>Wine<span class="brand-light">Shelf</span></span>
+        </a>
+        <p>Made for Mac gamers. Open source under the MIT License.</p>
+        <nav class="footer-links" aria-label="Footer navigation">
+          <a href="https://github.com/lAmirshahinxl/WineShelf">GitHub</a>
+          <a href="https://github.com/lAmirshahinxl/WineShelf/issues">Feedback</a>
+          <a href="https://github.com/lAmirshahinxl/WineShelf/releases">Releases</a>
+        </nav>
+        <span class="footer-copy">© 2026 WineShelf</span>
+      </div>
+    </footer>
+  </body>
+</html>
