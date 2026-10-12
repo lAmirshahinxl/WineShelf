@@ -188,6 +188,7 @@ export function ScannerCardStream({
     state.cardLineWidth = cardLine.scrollWidth || (CARD_WIDTH + cardGap) * cards.length;
     state.position = direction === -1 ? viewport.clientWidth : -state.cardLineWidth;
     state.lastTime = performance.now();
+    setStreamDirection(direction);
 
     let renderer: THREE.WebGLRenderer | null = null;
     try {
@@ -402,7 +403,7 @@ export function ScannerCardStream({
       if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
       event.preventDefault();
       const step = event.shiftKey ? CARD_WIDTH : 80;
-      const movingRight = event.key === "ArrowLeft";
+      const movingRight = event.key === "ArrowRight";
       state.position += movingRight ? step : -step;
       const nextDirection = movingRight ? 1 : -1;
       if (state.direction !== nextDirection) {
@@ -436,7 +437,7 @@ export function ScannerCardStream({
         if (state.velocity > state.minVelocity) {
           state.velocity = Math.max(
             state.minVelocity,
-            state.velocity * state.friction,
+            state.velocity * Math.pow(state.friction, deltaTime * 60),
           );
         }
         state.position += state.velocity * state.direction * deltaTime;
@@ -572,11 +573,19 @@ export function ScannerCardStream({
     <div className="scanner-card-stream" data-paused={isPaused}>
       <div className="scanner-card-stream-toolbar">
         <div className="scanner-card-stream-legend" aria-hidden="true">
-          <span>{streamDirection === 1 ? "WINDOWS · INTEL X86" : "APPLE SILICON · MACOS"}</span>
+          <span>
+            {streamDirection === 1
+              ? "WINDOWS · INTEL X86"
+              : "APPLE SILICON · MACOS"}
+          </span>
           <span className="scanner-card-stream-legend-arrow">
             {streamDirection === 1 ? "→ WINESHELF →" : "← WINESHELF ←"}
           </span>
-          <span>{streamDirection === 1 ? "APPLE SILICON · MACOS" : "WINDOWS · INTEL X86"}</span>
+          <span>
+            {streamDirection === 1
+              ? "APPLE SILICON · MACOS"
+              : "WINDOWS · INTEL X86"}
+          </span>
         </div>
         <div className="scanner-card-stream-actions">
           {showSpeed && (
