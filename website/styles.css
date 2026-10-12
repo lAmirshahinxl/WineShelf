@@ -996,3 +996,31 @@ h1 span,
   .scanner-card-stream-beam { animation: none; }
   .scanner-card-stream-button { transition: none; }
 }
+
+.hero-burin-home {
+  min-height: min(760px, calc(100svh - 82px));
+}
+
+.hero-burin-home::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: radial-gradient(ellipse at 72% 50%, rgba(0, 211, 220, .11), transparent 33%);
+  content: "";
+  pointer-events: none;
+}
+
+.hero-burin-home h1 {
+  margin-bottom: 0;
+}
+
+@media (max-width: 720px) {
+  .hero-burin-home {
+    min-height: auto;
+  }
+
+  .hero-burin-home [data-burin-stage] {
+    height: min(52vh, 380px);
+    min-height: 300px;
+  }
+}

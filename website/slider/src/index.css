@@ -5,4 +5,22 @@
   --color-muted: #10264d;
 }
 
+:root {
+  --ns-muted: #c4d5e1;
+  --ns-accent: #00d3dc;
+}
+
+.dark {
+  --ns-muted: #d2e3e6;
+  --ns-accent: #53f2ee;
+}
+
+@theme inline {
+  --color-ns-muted: var(--ns-muted);
+  --color-ns-accent: var(--ns-accent);
+  --color-ns-paper: var(--paper);
+  --color-ns-ink: var(--ink-deep);
+  --color-ns-border: var(--line-light);
+}
+
 @source "./";

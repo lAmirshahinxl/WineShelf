@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import BlockFeature from "../slider/src/components/ui/block-feature";
 import { GameSlider } from "../slider/src/game-slider";
+import { BurinHatch } from "@/components/ui/hero-burin-hatch";
 import { ScannerCardStream } from "@/components/ui/scanner-card-stream";
 
 export default function HomePage() {
@@ -44,89 +45,21 @@ export default function HomePage() {
       </header>
       <main id="main">
         {" "}
-        <section className="hero shell" id="top" aria-labelledby="hero-title">
-          {" "}
-          <div className="hero-copy">
-            {" "}
-            <p className="eyebrow">
-              <span className="eyebrow-dot" aria-hidden="true"></span> A Windows
-              game library for macOS
-            </p>{" "}
-            <h1 id="hero-title">
-              Windows games,
-              <br />
-              <span>at home on Mac.</span>
-            </h1>{" "}
-            <p className="hero-description">
-              {" "}
-              Wine translates Windows app calls for macOS. WineShelf prepares
-              the runtime, guides setup, and keeps your games and launch options
-              together in one native Mac library.{" "}
-            </p>{" "}
-            <div className="hero-actions">
-              {" "}
-              <a
-                className="button button-primary"
-                href="/downloads/WineShelf-universal.dmg?v=source"
-                download="WineShelf-universal.dmg"
-              >
-                {" "}
-                Get WineShelf <span aria-hidden="true">↓</span>{" "}
-              </a>{" "}
-              <a
-                className="button button-quiet"
-                href="https://github.com/lAmirshahinxl/WineShelf"
-              >
-                {" "}
-                Explore the project <span aria-hidden="true">→</span>{" "}
-              </a>{" "}
-            </div>{" "}
-            <p className="hero-note">
-              macOS 14 or later <span aria-hidden="true">·</span> Intel and
-              Apple silicon
-            </p>{" "}
-          </div>
-          <div
-            className="hero-art"
-            aria-label="WineShelf game shelf illustration"
-          >
-            {" "}
-            <div className="art-frame">
-              {" "}
-              <div className="art-topline">
-                {" "}
-                <span className="art-dot" aria-hidden="true"></span>{" "}
-                <span>YOUR LIBRARY, REIMAGINED</span>{" "}
-                <span className="art-topline-state">
-                  READY WHEN YOU ARE
-                </span>{" "}
-              </div>{" "}
-              <img
-                src="/assets/game-shelf.png"
-                alt="Illustration of a shelf holding Windows games and Steam, with a glowing doorway between them"
-              />{" "}
-              <div className="art-caption">
-                {" "}
-                <span className="caption-mark" aria-hidden="true">
-                  W
-                </span>{" "}
-                <span>
-                  <strong>One shelf.</strong>
-                  <br />
-                  More ways to play.
-                </span>{" "}
-                <span className="caption-arrow" aria-hidden="true">
-                  ↗
-                </span>{" "}
-              </div>{" "}
-            </div>{" "}
-            <span className="art-orbit orbit-one" aria-hidden="true"></span>{" "}
-            <span
-              className="art-orbit orbit-two"
-              aria-hidden="true"
-            ></span>{" "}
-          </div>{" "}
-        </section>
+        <BurinHatch
+          eyebrow="A WINDOWS GAME LIBRARY FOR MACOS"
+          headline={["Windows games,", "at home on Mac."]}
+          subcopy="WineShelf prepares the Wine runtime, guides setup, and keeps your Windows games and launch options together in one native Mac library."
+          primaryCta={{
+            label: "Get WineShelf",
+            href: "/downloads/WineShelf-universal.dmg?v=source",
+          }}
+          secondaryCta={{
+            label: "Explore the project",
+            href: "https://github.com/lAmirshahinxl/WineShelf",
+          }}
+          plateLabel="A cyan copperplate engraving of a sphere. Hatch lines deepen in shadow and thin to bare paper in the light, representing WineShelf's Windows-to-Mac translation."
+          className="hero-burin-home w-full"
+        />
         <div className="capability-ribbon" aria-label="WineShelf highlights">
           {" "}
           <div className="ribbon-inner shell">
