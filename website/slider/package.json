@@ -4,20 +4,22 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build": "tsc --noEmit && vite build"
+    "build": "tsc --noEmit && vite build && cp ../../.build/game-carousel/game-carousel.css ../../website/game-carousel.css && cp ../../.build/game-carousel/game-carousel.js ../../website/game-carousel.js"
   },
   "dependencies": {
+    "@tabler/icons-react": "^3.49.0",
     "@tailwindcss/vite": "^4.3.3",
     "clsx": "^2.1.1",
+    "lucide-react": "^1.55.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "tailwind-merge": "^3.7.0",
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
+    "@types/node": "^24.10.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "@types/node": "^24.10.0",
     "@vitejs/plugin-react": "^6.1.2",
     "typescript": "^5.9.3",
     "vite": "^8.3.4"

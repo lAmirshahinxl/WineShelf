@@ -7,3 +7,6 @@ dist/
 *.xcuserstate
 /deploy/deploy-site.local
 /website/slider/node_modules/
+/website/node_modules/
+/website/.next/
+/website/out/
