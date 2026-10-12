@@ -5,3 +5,4 @@
 dist/
 *.log
 *.xcuserstate
+/deploy/deploy-site.local
