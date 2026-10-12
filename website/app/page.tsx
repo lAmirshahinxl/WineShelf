@@ -3,14 +3,16 @@ import BlockFeature from "../slider/src/components/ui/block-feature";
 import { GameSlider } from "../slider/src/game-slider";
 import { BurinHatch } from "@/components/ui/hero-burin-hatch";
 import { ScannerCardStream } from "@/components/ui/scanner-card-stream";
+import PageMotion from "./page-motion";
 
 export default function HomePage() {
   return (
     <>
+      <PageMotion />
       <a className="skip-link" href="#main">
         Skip to content
       </a>
-      <header className="site-header">
+      <header className="site-header" id="top">
         {" "}
         <div className="header-inner shell">
           {" "}
@@ -57,7 +59,7 @@ export default function HomePage() {
             label: "Explore the project",
             href: "https://github.com/lAmirshahinxl/WineShelf",
           }}
-          plateLabel="A cyan copperplate engraving of a sphere. Hatch lines deepen in shadow and thin to bare paper in the light, representing WineShelf's Windows-to-Mac translation."
+          plateLabel="A rotating globe with a cyan rim"
           className="hero-burin-home w-full"
         />
         <div className="capability-ribbon" aria-label="WineShelf highlights">
@@ -430,26 +432,26 @@ export default function HomePage() {
           <div className="performance-table-wrap">
             {" "}
             <table className="performance-table">
-              {" "}
+
               <caption className="visually-hidden">
                 Community-reported frame rates for Windows games running in
                 Wine-based configurations.
-              </caption>{" "}
+              </caption>
               <thead>
-                {" "}
+
                 <tr>
-                  {" "}
-                  <th scope="col">Game</th>{" "}
+
+                  <th scope="col">Game</th>
                   <th scope="col">
                     Community FPS reports by Mac and setup
-                  </th>{" "}
-                </tr>{" "}
-              </thead>{" "}
+                  </th>
+                </tr>
+              </thead>
               <tbody>
-                {" "}
+
                 <tr>
-                  {" "}
-                  <th scope="row">Counter-Strike 2</th>{" "}
+
+                  <th scope="row">Counter-Strike 2</th>
                   <td>
                     {" "}
                     <ul className="performance-reports">
@@ -515,11 +517,11 @@ export default function HomePage() {
                         </a>
                       </li>{" "}
                     </ul>{" "}
-                  </td>{" "}
-                </tr>{" "}
+                  </td>
+                </tr>
                 <tr>
-                  {" "}
-                  <th scope="row">Dota 2</th>{" "}
+
+                  <th scope="row">Dota 2</th>
                   <td>
                     <ul className="performance-reports">
                       <li>
@@ -536,11 +538,11 @@ export default function HomePage() {
                         </a>
                       </li>
                     </ul>
-                  </td>{" "}
-                </tr>{" "}
+                  </td>
+                </tr>
                 <tr>
-                  {" "}
-                  <th scope="row">Cyberpunk 2077</th>{" "}
+
+                  <th scope="row">Cyberpunk 2077</th>
                   <td>
                     <ul className="performance-reports">
                       <li>
@@ -556,11 +558,11 @@ export default function HomePage() {
                         </a>
                       </li>
                     </ul>
-                  </td>{" "}
-                </tr>{" "}
+                  </td>
+                </tr>
                 <tr>
-                  {" "}
-                  <th scope="row">Grand Theft Auto V (Legacy)</th>{" "}
+
+                  <th scope="row">Grand Theft Auto V (Legacy)</th>
                   <td>
                     <ul className="performance-reports">
                       <li>
@@ -577,11 +579,11 @@ export default function HomePage() {
                         </a>
                       </li>
                     </ul>
-                  </td>{" "}
-                </tr>{" "}
+                  </td>
+                </tr>
                 <tr>
-                  {" "}
-                  <th scope="row">Red Dead Redemption 2</th>{" "}
+
+                  <th scope="row">Red Dead Redemption 2</th>
                   <td>
                     <ul className="performance-reports">
                       <li>
@@ -597,11 +599,11 @@ export default function HomePage() {
                         </a>
                       </li>
                     </ul>
-                  </td>{" "}
-                </tr>{" "}
+                  </td>
+                </tr>
                 <tr>
-                  {" "}
-                  <th scope="row">Baldur’s Gate 3</th>{" "}
+
+                  <th scope="row">Baldur’s Gate 3</th>
                   <td>
                     <ul className="performance-reports">
                       <li>
@@ -617,11 +619,11 @@ export default function HomePage() {
                         </a>
                       </li>
                     </ul>
-                  </td>{" "}
-                </tr>{" "}
+                  </td>
+                </tr>
                 <tr>
-                  {" "}
-                  <th scope="row">The Witcher 3</th>{" "}
+
+                  <th scope="row">The Witcher 3</th>
                   <td>
                     <ul className="performance-reports">
                       <li>
@@ -638,11 +640,11 @@ export default function HomePage() {
                         </a>
                       </li>
                     </ul>
-                  </td>{" "}
-                </tr>{" "}
+                  </td>
+                </tr>
                 <tr>
-                  {" "}
-                  <th scope="row">Elden Ring</th>{" "}
+
+                  <th scope="row">Elden Ring</th>
                   <td>
                     <ul className="performance-reports">
                       <li>
@@ -658,9 +660,9 @@ export default function HomePage() {
                         </a>
                       </li>
                     </ul>
-                  </td>{" "}
-                </tr>{" "}
-              </tbody>{" "}
+                  </td>
+                </tr>
+              </tbody>
             </table>{" "}
           </div>{" "}
           <p className="performance-footnote">

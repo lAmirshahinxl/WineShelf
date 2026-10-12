@@ -121,6 +121,8 @@ export type TiltedGridHeroProps = {
   curve?: number;
   /** Width of the fade at each end, as a percentage of the hero's width. @default 12 */
   fade?: number;
+  /** Keep the continuous image loop still while the viewer reads it. */
+  paused?: boolean;
   /** Content rendered above the band. */
   children?: React.ReactNode;
   className?: string;
@@ -135,6 +137,7 @@ export function TiltedGridHero({
   axis = 56,
   curve = 80,
   fade = 12,
+  paused = false,
   children,
   className,
   ...props
@@ -256,6 +259,7 @@ export function TiltedGridHero({
                 transformStyle: "preserve-3d",
                 // Tile t starts t tiles along the loop.
                 animation: `${orbit} ${duration}s linear ${-t * speed}s infinite`,
+                animationPlayState: paused ? "paused" : "running",
               }}
               onAnimationIteration={(e) => {
                 // elapsedTime counts whole loops, missed events included.
@@ -315,4 +319,3 @@ export function TiltedGridHero({
 }
 
 export default TiltedGridHero;
-

@@ -231,3 +231,65 @@
   .fps-chart-axis { gap: 5px; }
   .fps-chart-row { gap: 5px; }
 }
+
+/* Performance data uses the same dark surfaces as the rest of the page. */
+.performance-chart {
+  border-color: rgba(182, 176, 236, .18);
+  background: linear-gradient(145deg, #191c38, #12142a);
+  box-shadow: 0 18px 48px rgba(2, 3, 14, .2);
+}
+
+.fps-chart-kicker,
+.fps-chart-value { color: #8af2ed; }
+.fps-chart-caption h3,
+.fps-chart-game { color: #f2f3ff; }
+.fps-chart-caption p:last-child,
+.fps-chart-scale,
+.fps-chart-axis,
+.fps-axis-values,
+.fps-chart-legend { color: #c0c5df; }
+
+.fps-chart-rows { border-color: rgba(182, 176, 236, .16); }
+.fps-chart-row { border-color: rgba(182, 176, 236, .12); }
+
+.fps-track {
+  border-color: rgba(182, 176, 236, .14);
+  background-color: rgba(255, 255, 255, .04);
+  background-image: linear-gradient(to right,
+    transparent calc(25% - .5px), rgba(182, 176, 236, .13) calc(25% - .5px), rgba(182, 176, 236, .13) calc(25% + .5px), transparent calc(25% + .5px),
+    transparent calc(50% - .5px), rgba(182, 176, 236, .13) calc(50% - .5px), rgba(182, 176, 236, .13) calc(50% + .5px), transparent calc(50% + .5px),
+    transparent calc(75% - .5px), rgba(182, 176, 236, .13) calc(75% - .5px), rgba(182, 176, 236, .13) calc(75% + .5px), transparent calc(75% + .5px));
+}
+
+.fps-fill { background: repeating-linear-gradient(90deg, #67e2df 0 8px, transparent 8px 11px); }
+.fps-fill.fps-point::after { border-color: #191c38; background: #8af2ed; }
+.fps-range { background: repeating-linear-gradient(90deg, #b69bff 0 8px, transparent 8px 11px); }
+.fps-range::before,
+.fps-range::after { background: #d0c1ff; }
+.fps-chart-value small { color: #c0c5df; }
+.fps-legend-fill { background: #67e2df; }
+.fps-legend-range { background: #b69bff; }
+
+.performance-section[data-motion="visible"] .fps-fill,
+.performance-section[data-motion="visible"] .fps-range {
+  transform-origin: left center;
+  animation: fps-grow 720ms cubic-bezier(.22, .68, 0, 1) both;
+}
+
+.performance-section[data-motion="visible"] .fps-chart-row:nth-child(2) .fps-fill { animation-delay: 40ms; }
+.performance-section[data-motion="visible"] .fps-chart-row:nth-child(3) .fps-fill { animation-delay: 80ms; }
+.performance-section[data-motion="visible"] .fps-chart-row:nth-child(4) .fps-fill { animation-delay: 120ms; }
+.performance-section[data-motion="visible"] .fps-chart-row:nth-child(5) .fps-fill { animation-delay: 160ms; }
+.performance-section[data-motion="visible"] .fps-chart-row:nth-child(6) .fps-fill { animation-delay: 200ms; }
+.performance-section[data-motion="visible"] .fps-chart-row:nth-child(7) .fps-fill { animation-delay: 240ms; }
+.performance-section[data-motion="visible"] .fps-chart-row:nth-child(8) .fps-fill { animation-delay: 280ms; }
+
+@keyframes fps-grow {
+  from { opacity: .45; transform: scaleX(0); }
+  to { opacity: 1; transform: scaleX(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .performance-section[data-motion="visible"] .fps-fill,
+  .performance-section[data-motion="visible"] .fps-range { animation: none; }
+}

@@ -1,3 +1,7 @@
+"use client";
+
+import { Pause, Play } from "lucide-react";
+import { useState } from "react";
 import { TiltedGridHero, type TiltedGridImage } from "@/components/ui/tilted-grid-hero";
 
 const GAME_IMAGES: TiltedGridImage[] = [
@@ -14,10 +18,30 @@ const GAME_IMAGES: TiltedGridImage[] = [
 ];
 
 export function GameSlider() {
+  const [paused, setPaused] = useState(false);
+
   return (
-    <TiltedGridHero images={GAME_IMAGES} className="games-carousel-frame">
+    <TiltedGridHero
+      images={GAME_IMAGES}
+      paused={paused}
+      className="games-carousel-frame"
+    >
       <div className="games-carousel-overlay">
-        <p className="games-carousel-kicker">THE GAMES YOU WANT TO PLAY · POWERED BY WINESHELF</p>
+        <div className="games-carousel-topline">
+          <p className="games-carousel-kicker">
+            THE GAMES YOU WANT TO PLAY · POWERED BY WINESHELF
+          </p>
+          <button
+            className="games-motion-control"
+            type="button"
+            aria-label={paused ? "Resume game showcase" : "Pause game showcase"}
+            aria-pressed={paused}
+            onClick={() => setPaused((current) => !current)}
+          >
+            {paused ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}
+            <span>{paused ? "Resume" : "Pause"}</span>
+          </button>
+        </div>
         <p className="games-carousel-note">
           Counter-Strike 2 · Dota 2 · Call of Duty · Cyberpunk 2077 · Elden Ring · and more
         </p>
