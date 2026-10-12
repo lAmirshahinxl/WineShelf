@@ -50,7 +50,7 @@ if [[ ! -d "$website_dir" ]]; then
   exit 1
 fi
 
-for command_name in rsync ssh shasum cut sed cp mktemp grep; do
+for command_name in rsync ssh shasum cut sed cp mktemp grep gh; do
   if ! command -v "$command_name" >/dev/null 2>&1; then
     echo "Required command not found: $command_name" >&2
     exit 1
@@ -64,8 +64,25 @@ if ! ssh "${ssh_options[@]}" "$target" "test -d '$remote_path' && test -w '$remo
 fi
 
 staging_dir="$(mktemp -d "${TMPDIR:-/tmp}/wineshelf-site-deploy.XXXXXX")"
-trap 'rm -rf "$staging_dir"' EXIT
+release_dir="$(mktemp -d "${TMPDIR:-/tmp}/wineshelf-release-download.XXXXXX")"
+trap 'rm -rf "$staging_dir" "$release_dir"' EXIT
 cp -pR "$website_dir/." "$staging_dir/"
+
+release_repo="lAmirshahinxl/WineShelf"
+release_tag="$(gh release view --repo "$release_repo" --json tagName --jq '.tagName')"
+release_asset="$(gh release view --repo "$release_repo" --json assets --jq '.assets[].name | select(test("^WineShelf-[0-9].*-universal[.]dmg$"))' | sed -n '1p')"
+if [[ ! "$release_tag" =~ ^v?[A-Za-z0-9][A-Za-z0-9._-]*$ ]]; then
+  echo "Could not determine a valid latest WineShelf release tag." >&2
+  exit 1
+fi
+if [[ ! "$release_asset" =~ ^WineShelf-[0-9][A-Za-z0-9._-]*-universal\.dmg$ ]]; then
+  echo "Could not find the latest versioned universal DMG in release $release_tag." >&2
+  exit 1
+fi
+
+gh release download "$release_tag" --repo "$release_repo" --pattern "$release_asset" --dir "$release_dir"
+mkdir -p "$staging_dir/downloads"
+cp -p "$release_dir/$release_asset" "$staging_dir/downloads/WineShelf-universal.dmg"
 
 css_hash="$(shasum -a 256 "$staging_dir/styles.css" | cut -c1-12)"
 stylesheet_placeholder='href="/styles.css?v=source"'
@@ -73,17 +90,24 @@ if ! grep -Fq "$stylesheet_placeholder" "$staging_dir/index.html"; then
   echo "Expected stylesheet placeholder was not found in website/index.html." >&2
   exit 1
 fi
+download_placeholder='href="/downloads/WineShelf-universal.dmg?v=source"'
+if ! grep -Fq "$download_placeholder" "$staging_dir/index.html"; then
+  echo "Expected download placeholder was not found in website/index.html." >&2
+  exit 1
+fi
 
-sed "s|href=\"/styles\\.css?v=source\"|href=\"/styles.css?v=${css_hash}\"|" \
+sed \
+  -e "s|href=\"/styles\\.css?v=source\"|href=\"/styles.css?v=${css_hash}\"|" \
+  -e "s|href=\"/downloads/WineShelf-universal\\.dmg?v=source\"|href=\"/downloads/WineShelf-universal.dmg?v=${release_tag}\"|" \
   "$staging_dir/index.html" > "$staging_dir/index.html.tmp"
 mv "$staging_dir/index.html.tmp" "$staging_dir/index.html"
 
 rsync_options=(-rltz --checksum --human-readable)
 if (( dry_run )); then
   rsync_options+=(--dry-run --itemize-changes)
-  echo "Previewing website sync to $target:$remote_path (stylesheet version $css_hash)"
+  echo "Previewing website sync to $target:$remote_path (stylesheet $css_hash, WineShelf $release_tag)"
 else
-  echo "Syncing website to $target:$remote_path (stylesheet version $css_hash)"
+  echo "Syncing website to $target:$remote_path (stylesheet $css_hash, WineShelf $release_tag)"
 fi
 
 rsync "${rsync_options[@]}" -e 'ssh -o BatchMode=yes -o ConnectTimeout=10' -- \
