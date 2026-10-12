@@ -507,7 +507,7 @@ export function BurinHatch({
       else raf = 0;
     };
 
-    const makeAtlas = (images: HTMLImageElement[]) => {
+    const makeAtlas = (images: Array<HTMLImageElement | undefined>) => {
       const atlas = document.createElement("canvas");
       atlas.width = 2048;
       atlas.height = 1024;
@@ -544,21 +544,25 @@ export function BurinHatch({
       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
       gl.bindTexture(gl.TEXTURE_2D, texture);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, atlas);
+      const firstAtlas = !atlasReady;
       atlasReady = true;
-      startTime = performance.now();
-      if (reduced) draw(startTime);
-      else if (!document.hidden) raf = requestAnimationFrame(draw);
+      if (firstAtlas) startTime = performance.now();
+      if (reduced) draw(performance.now());
+      else if (!document.hidden && !raf) raf = requestAnimationFrame(draw);
     };
 
-    const imageLoads = globeGames.map(({ image }) => new Promise<HTMLImageElement>((resolve) => {
-      const gameImage = new Image();
-      gameImage.onload = () => resolve(gameImage);
-      gameImage.onerror = () => resolve(gameImage);
-      gameImage.src = `/assets/game-banners/${image}`;
-    }));
+    const loadedImages: Array<HTMLImageElement | undefined> = new Array(globeGames.length);
+    makeAtlas(loadedImages);
 
-    Promise.all(imageLoads).then((images) => {
-      if (!disposed) makeAtlas(images);
+    globeGames.forEach(({ image }, index) => {
+      const gameImage = new Image();
+      gameImage.decoding = "async";
+      gameImage.onload = () => {
+        if (disposed) return;
+        loadedImages[index] = gameImage;
+        makeAtlas(loadedImages);
+      };
+      gameImage.src = `/assets/game-banners/${image}`;
     });
 
     const observer = new ResizeObserver(() => {
