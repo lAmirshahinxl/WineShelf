@@ -36,6 +36,7 @@ Run the sync when the target looks right:
 ```
 
 The sync adds and overwrites files without deleting remote files. It generates
-a content-hash stylesheet URL and a release-versioned download URL in the
-deployed HTML, so browser and CDN caches fetch the matching files after an
-update. No SSH keys or server-specific target values belong in Git.
+content-hash URLs for the stylesheet and game carousel script, plus a
+release-versioned download URL in the deployed HTML, so browser and CDN caches
+fetch the matching files after an update. No SSH keys or server-specific target
+values belong in Git.

@@ -15,6 +15,7 @@
     <link rel="apple-touch-icon" href="/assets/wineshelf-icon.png">
     <link rel="canonical" href="https://wineshelf.site/">
     <link rel="stylesheet" href="/styles.css?v=source">
+    <script src="/game-carousel.js?v=source" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -58,19 +59,98 @@
           <p class="hero-note">macOS 14 or later <span aria-hidden="true">·</span> Intel and Apple silicon</p>
         </div>
 
-        <div class="hero-art" aria-label="WineShelf game shelf illustration">
-          <div class="art-frame">
-            <div class="art-topline">
-              <span class="art-dot" aria-hidden="true"></span>
-              <span>YOUR LIBRARY, REIMAGINED</span>
-              <span class="art-topline-state">READY WHEN YOU ARE</span>
+        <div class="hero-art">
+          <div class="game-carousel" data-game-carousel role="region" aria-roledescription="carousel" aria-label="Featured games">
+            <div class="carousel-heading">
+              <p><span class="carousel-pulse" aria-hidden="true"></span> THE GAMES YOU WANT TO PLAY</p>
+              <span class="carousel-heading-note">POWERED BY WINE</span>
             </div>
-            <img src="/assets/game-shelf.png" alt="Illustration of a shelf holding Windows games and Steam, with a glowing doorway between them">
-            <div class="art-caption">
-              <span class="caption-mark" aria-hidden="true">W</span>
-              <span><strong>One shelf.</strong><br>More ways to play.</span>
-              <span class="caption-arrow" aria-hidden="true">↗</span>
+
+            <div class="game-carousel-stage" data-carousel-stage tabindex="0" aria-label="Use the arrow keys to browse featured games">
+              <article class="game-card" data-game-slide role="group" aria-roledescription="slide" aria-label="1 of 7: Counter-Strike 2">
+                <a class="game-card-link" href="https://store.steampowered.com/app/730/CounterStrike_2/" target="_blank" rel="noopener noreferrer" aria-label="View Counter-Strike 2 on Steam">
+                  <img src="/assets/game-banners/counter-strike-2.jpg" alt="" width="460" height="215" fetchpriority="high">
+                  <span class="game-card-shade" aria-hidden="true"></span>
+                  <span class="game-card-copy"><span class="game-card-genre">TACTICAL FPS</span><strong>Counter-Strike 2</strong><span class="game-card-link-label">View game <span aria-hidden="true">↗</span></span></span>
+                  <span class="game-card-index" aria-hidden="true">01 <i>/ 07</i></span>
+                </a>
+              </article>
+
+              <article class="game-card" data-game-slide role="group" aria-roledescription="slide" aria-label="2 of 7: Dota 2">
+                <a class="game-card-link" href="https://store.steampowered.com/app/570/Dota_2/" target="_blank" rel="noopener noreferrer" aria-label="View Dota 2 on Steam">
+                  <img src="/assets/game-banners/dota-2.jpg" alt="" width="460" height="215" loading="lazy">
+                  <span class="game-card-shade" aria-hidden="true"></span>
+                  <span class="game-card-copy"><span class="game-card-genre">MULTIPLAYER STRATEGY</span><strong>Dota 2</strong><span class="game-card-link-label">View game <span aria-hidden="true">↗</span></span></span>
+                  <span class="game-card-index" aria-hidden="true">02 <i>/ 07</i></span>
+                </a>
+              </article>
+
+              <article class="game-card" data-game-slide role="group" aria-roledescription="slide" aria-label="3 of 7: Call of Duty: Modern Warfare III">
+                <a class="game-card-link" href="https://store.steampowered.com/app/2519060/Call_of_Duty_Modern_Warfare_III/" target="_blank" rel="noopener noreferrer" aria-label="View Call of Duty: Modern Warfare III on Steam">
+                  <img src="/assets/game-banners/call-of-duty-modern-warfare-iii.jpg" alt="" width="460" height="215" loading="lazy">
+                  <span class="game-card-shade" aria-hidden="true"></span>
+                  <span class="game-card-copy"><span class="game-card-genre">FIRST-PERSON SHOOTER</span><strong>Call of Duty: Modern Warfare III</strong><span class="game-card-link-label">View game <span aria-hidden="true">↗</span></span></span>
+                  <span class="game-card-index" aria-hidden="true">03 <i>/ 07</i></span>
+                </a>
+              </article>
+
+              <article class="game-card" data-game-slide role="group" aria-roledescription="slide" aria-label="4 of 7: Cyberpunk 2077">
+                <a class="game-card-link" href="https://store.steampowered.com/app/1091500/Cyberpunk_2077/" target="_blank" rel="noopener noreferrer" aria-label="View Cyberpunk 2077 on Steam">
+                  <img src="/assets/game-banners/cyberpunk-2077.jpg" alt="" width="460" height="215" loading="lazy">
+                  <span class="game-card-shade" aria-hidden="true"></span>
+                  <span class="game-card-copy"><span class="game-card-genre">OPEN-WORLD RPG</span><strong>Cyberpunk 2077</strong><span class="game-card-link-label">View game <span aria-hidden="true">↗</span></span></span>
+                  <span class="game-card-index" aria-hidden="true">04 <i>/ 07</i></span>
+                </a>
+              </article>
+
+              <article class="game-card" data-game-slide role="group" aria-roledescription="slide" aria-label="5 of 7: Grand Theft Auto V">
+                <a class="game-card-link" href="https://store.steampowered.com/app/271590/Grand_Theft_Auto_V/" target="_blank" rel="noopener noreferrer" aria-label="View Grand Theft Auto V on Steam">
+                  <img src="/assets/game-banners/grand-theft-auto-v.jpg" alt="" width="460" height="215" loading="lazy">
+                  <span class="game-card-shade" aria-hidden="true"></span>
+                  <span class="game-card-copy"><span class="game-card-genre">OPEN-WORLD ACTION</span><strong>Grand Theft Auto V</strong><span class="game-card-link-label">View game <span aria-hidden="true">↗</span></span></span>
+                  <span class="game-card-index" aria-hidden="true">05 <i>/ 07</i></span>
+                </a>
+              </article>
+
+              <article class="game-card" data-game-slide role="group" aria-roledescription="slide" aria-label="6 of 7: Elden Ring">
+                <a class="game-card-link" href="https://store.steampowered.com/app/1245620/ELDEN_RING/" target="_blank" rel="noopener noreferrer" aria-label="View Elden Ring on Steam">
+                  <img src="/assets/game-banners/elden-ring.jpg" alt="" width="460" height="215" loading="lazy">
+                  <span class="game-card-shade" aria-hidden="true"></span>
+                  <span class="game-card-copy"><span class="game-card-genre">ACTION RPG</span><strong>Elden Ring</strong><span class="game-card-link-label">View game <span aria-hidden="true">↗</span></span></span>
+                  <span class="game-card-index" aria-hidden="true">06 <i>/ 07</i></span>
+                </a>
+              </article>
+
+              <article class="game-card" data-game-slide role="group" aria-roledescription="slide" aria-label="7 of 7: Baldur’s Gate 3">
+                <a class="game-card-link" href="https://store.steampowered.com/app/1086940/Baldurs_Gate_3/" target="_blank" rel="noopener noreferrer" aria-label="View Baldur’s Gate 3 on Steam">
+                  <img src="/assets/game-banners/baldurs-gate-3.jpg" alt="" width="460" height="215" loading="lazy">
+                  <span class="game-card-shade" aria-hidden="true"></span>
+                  <span class="game-card-copy"><span class="game-card-genre">STORY-RICH RPG</span><strong>Baldur’s Gate 3</strong><span class="game-card-link-label">View game <span aria-hidden="true">↗</span></span></span>
+                  <span class="game-card-index" aria-hidden="true">07 <i>/ 07</i></span>
+                </a>
+              </article>
             </div>
+
+            <div class="carousel-footer">
+              <div class="carousel-current" aria-hidden="true">
+                <span>NOW IN THE SPOTLIGHT</span>
+                <strong data-carousel-title>Counter-Strike 2</strong>
+              </div>
+              <div class="carousel-controls" role="group" aria-label="Game banner controls">
+                <button class="carousel-control" type="button" data-carousel-previous aria-label="Previous game">
+                  <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m12.5 4.5-5.5 5.5 5.5 5.5"/></svg>
+                </button>
+                <button class="carousel-control carousel-toggle" type="button" data-carousel-toggle aria-label="Pause carousel">
+                  <svg class="pause-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 5v10M13 5v10"/></svg>
+                  <svg class="play-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="m7 4.5 8 5.5-8 5.5z"/></svg>
+                </button>
+                <button class="carousel-control" type="button" data-carousel-next aria-label="Next game">
+                  <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m7.5 4.5 5.5 5.5-5.5 5.5"/></svg>
+                </button>
+              </div>
+              <div class="carousel-pagination" data-carousel-pagination role="group" aria-label="Choose a game"></div>
+            </div>
+            <span class="visually-hidden" data-carousel-announcement aria-live="polite" aria-atomic="true"></span>
           </div>
           <span class="art-orbit orbit-one" aria-hidden="true"></span>
           <span class="art-orbit orbit-two" aria-hidden="true"></span>
