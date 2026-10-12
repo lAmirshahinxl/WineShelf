@@ -7,6 +7,11 @@ It also downloads the latest universal DMG from the private GitHub repository
 and serves it at `/downloads/WineShelf-universal.dmg`, so visitors can download
 the app without GitHub access.
 
+The Nginx policy in `wineshelf.site.conf` allows same-origin assets plus the
+inline bootstrap payloads and styles emitted by Next.js static export. Keep the
+installed Nginx policy in sync with this file and reload Nginx after changing it;
+the site file sync does not install or reload Nginx configuration.
+
 ## Configure once
 
 Create the ignored local config and set the SSH alias or direct origin address:
