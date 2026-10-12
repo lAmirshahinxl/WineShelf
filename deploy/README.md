@@ -30,5 +30,7 @@ Run the sync when the target looks right:
 ./deploy/deploy-site.sh
 ```
 
-The sync overwrites changed files and adds new files. It does not remove files
-from the server. No SSH keys or server-specific target values belong in Git.
+The sync adds and overwrites files without deleting remote files. It generates
+a content-hash stylesheet URL in the deployed HTML so browser and CDN caches
+fetch the matching CSS after every change. No SSH keys or server-specific target
+values belong in Git.
