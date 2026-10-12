@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import BlockFeature from "../slider/src/components/ui/block-feature";
 import { GameSlider } from "../slider/src/game-slider";
+import { ScannerCardStream } from "@/components/ui/scanner-card-stream";
 
 export default function HomePage() {
   return (
@@ -26,7 +27,8 @@ export default function HomePage() {
           </a>
           <nav className="main-nav" aria-label="Main navigation">
             {" "}
-            <a href="#features">Features</a> <a href="#setup">How it works</a>{" "}
+            <a href="#features">Features</a> <a href="#translation">Translation</a>{" "}
+            <a href="#setup">How it works</a>{" "}
             <a href="#games">Games</a> <a href="#performance">Performance</a>{" "}
             <a href="#compatibility">Compatibility</a>{" "}
           </nav>
@@ -143,6 +145,35 @@ export default function HomePage() {
             </span>{" "}
           </div>{" "}
         </div>
+        <section
+          className="translation-section"
+          id="translation"
+          aria-labelledby="translation-title"
+        >
+          <div className="translation-inner shell">
+            <div className="translation-heading">
+              <p className="eyebrow">
+                <span className="eyebrow-dot" aria-hidden="true" /> Windows
+                → macOS via Wine
+              </p>
+              <h2 id="translation-title">
+                Windows in.
+                <br />
+                <span>Mac-compatible out.</span>
+              </h2>
+              <p>
+                Wine keeps the app intact and maps the Windows interfaces it
+                expects onto macOS. Watch the scanner carry each card through
+                that compatibility layer.
+              </p>
+            </div>
+            <ScannerCardStream />
+            <p className="translation-note">
+              A visual metaphor for API translation: Wine supplies Windows
+              behavior on macOS without rewriting the app’s source code.
+            </p>
+          </div>
+        </section>
         <section
           className="features section"
           id="features"
