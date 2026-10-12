@@ -9,46 +9,29 @@ import {
 import * as THREE from "three";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-const defaultCardImages = [
-  "https://cdn.21st.dev/assets/mirror/cc/cccd26411c3961f0580866608ca10525bc100d36d60b00d439da67123860e5b3.png",
-  "https://cdn.21st.dev/assets/mirror/39/3989b198f5af613fd45d5b37bb893cf76b8286fe0615a51343b16a3f9a44fe60.png",
-  "https://cdn.21st.dev/assets/mirror/7a/7a27e9dafc45d10870073cb64440dabeb2e5972118fd9375958fb40afb088028.png",
-  "https://cdn.21st.dev/assets/mirror/8b/8bd2f1455818bd7c15824695de33d5d77b28dec91589221409d61b25e3c36994.png",
-  "https://cdn.21st.dev/assets/mirror/e4/e4cb1e5ee85993bc30b089641c817ce87f4f7fabfe204fd628a9cbc969d38f34.png",
-];
-
-const ASCII_CHARS =
-  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789(){}[]<>;:,._-+=!@#$%^&*|\\/\"'`~?";
 const CARD_WIDTH = 400;
 const CARD_HEIGHT = 250;
-
-const generateCode = (width: number, height: number, seed?: number): string => {
-  let randomState = seed ?? Math.floor(Math.random() * 0xffffffff);
-  const random = () => {
-    randomState = (randomState * 1664525 + 1013904223) >>> 0;
-    return randomState / 0x100000000;
-  };
-
-  let output = "";
-  for (let row = 0; row < height; row += 1) {
-    for (let column = 0; column < width; column += 1) {
-      output += ASCII_CHARS[Math.floor(random() * ASCII_CHARS.length)];
-    }
-    output += "\n";
-  }
-  return output;
-};
+const cpuModels = [
+  { input: "CORE i9-14900K", output: "M4 MAX" },
+  { input: "CORE i7-14700K", output: "M4 PRO" },
+  { input: "CORE i5-14600K", output: "M4" },
+  { input: "CORE ULTRA 9", output: "M3 ULTRA" },
+  { input: "XEON W", output: "M3 MAX" },
+];
 
 type ScannerCardStreamProps = {
   showControls?: boolean;
   showSpeed?: boolean;
   initialSpeed?: number;
   direction?: -1 | 1;
-  cardImages?: string[];
   repeat?: number;
   cardGap?: number;
   friction?: number;
-  scanEffect?: "clip" | "scramble";
+};
+
+type CpuChipFaceProps = {
+  platform: "intel" | "apple";
+  model: string;
 };
 
 type CardStreamState = {
@@ -78,26 +61,56 @@ type ScannerParticle = {
   decay: number;
 };
 
+function CpuChipFace({ platform, model }: CpuChipFaceProps) {
+  const isApple = platform === "apple";
+
+  return (
+    <div
+      className={`cpu-chip-face ${isApple ? "cpu-chip-face-apple" : "cpu-chip-face-intel"}`}
+      aria-hidden="true"
+    >
+      <div className="cpu-chip-grid" />
+      <div className="cpu-chip-topline">
+        <span>{isApple ? "APPLE SILICON" : "WINDOWS · X86_64"}</span>
+        <span className="cpu-chip-state">{isApple ? "ARM64" : "INTEL"}</span>
+      </div>
+      <div className={`cpu-package cpu-package-${platform}`}>
+        <div className="cpu-package-surface">
+          <span className={`cpu-package-maker cpu-package-maker-${platform}`}>
+            {isApple ? "Apple" : "intel"}
+          </span>
+          <span className="cpu-package-model">{model}</span>
+          <span className="cpu-package-type">
+            {isApple ? "APPLE SILICON" : "CORE PROCESSOR"}
+          </span>
+        </div>
+      </div>
+      <div className="cpu-chip-bottomline">
+        <span>{isApple ? "MACOS · APPLE SILICON" : "WINDOWS · INTEL PC"}</span>
+        <span>{isApple ? "WINESHELF OUTPUT" : "WINESHELF INPUT"}</span>
+      </div>
+    </div>
+  );
+}
+
 export function ScannerCardStream({
   showControls = false,
   showSpeed = false,
-  initialSpeed = 150,
-  direction = -1,
-  cardImages = defaultCardImages,
+  initialSpeed = 300,
+  direction = 1,
   repeat = 6,
   cardGap = 60,
-  friction = 0.95,
-  scanEffect = "scramble",
+  friction = 0.992,
 }: ScannerCardStreamProps) {
   const [speed, setSpeed] = useState(initialSpeed);
   const [isPaused, setIsPaused] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
+  const [streamDirection, setStreamDirection] = useState(direction);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const viewportRef = useRef<HTMLDivElement>(null);
   const cardLineRef = useRef<HTMLDivElement>(null);
   const particleCanvasRef = useRef<HTMLCanvasElement>(null);
   const scannerCanvasRef = useRef<HTMLCanvasElement>(null);
-  const originalAscii = useRef(new Map<number, string>());
   const isPausedRef = useRef(isPaused);
   const reducedMotionRef = useRef(false);
   const animationControlRef = useRef<((isRunning: boolean) => void) | null>(null);
@@ -114,23 +127,19 @@ export function ScannerCardStream({
     cardLineWidth: 0,
     containerWidth: 0,
     friction,
-    minVelocity: 30,
+    minVelocity: 85,
   });
   const scannerState = useRef({ isScanning: false });
 
   const cards = useMemo(() => {
     const safeRepeat = Math.max(0, Math.floor(repeat));
-    const totalCards = cardImages.length * safeRepeat;
+    const totalCards = cpuModels.length * safeRepeat;
     return Array.from({ length: totalCards }, (_, index) => ({
       id: index,
-      image: cardImages[index % cardImages.length],
-      ascii: generateCode(
-        Math.floor(CARD_WIDTH / 6.5),
-        Math.floor(CARD_HEIGHT / 13),
-        index + 1,
-      ),
+      input: cpuModels[index % cpuModels.length].input,
+      output: cpuModels[index % cpuModels.length].output,
     }));
-  }, [cardImages, repeat]);
+  }, [repeat]);
 
   const toggleAnimation = useCallback(() => {
     setIsPaused((paused) => !paused);
@@ -142,19 +151,21 @@ export function ScannerCardStream({
     if (!viewport || !cardLine) return;
 
     const state = cardStreamState.current;
-    state.position = viewport.clientWidth;
     state.containerWidth = viewport.clientWidth;
     state.cardLineWidth = cardLine.scrollWidth;
+    state.position = direction === -1 ? viewport.clientWidth : -state.cardLineWidth;
     state.velocity = initialSpeed;
     state.direction = direction;
     state.isDragging = false;
     setSpeed(initialSpeed);
     setIsPaused(false);
+    setStreamDirection(direction);
   }, [initialSpeed, direction]);
 
   const changeDirection = useCallback(() => {
-    cardStreamState.current.direction =
-      cardStreamState.current.direction === 1 ? -1 : 1;
+    const nextDirection = cardStreamState.current.direction === 1 ? -1 : 1;
+    cardStreamState.current.direction = nextDirection;
+    setStreamDirection(nextDirection);
   }, []);
 
   useEffect(() => {
@@ -169,14 +180,13 @@ export function ScannerCardStream({
     const scannerCanvas = scannerCanvasRef.current;
     if (!viewport || !cardLine || !particleCanvas || !scannerCanvas) return;
 
-    cards.forEach((card) => originalAscii.current.set(card.id, card.ascii));
     const state = cardStreamState.current;
     state.containerWidth = viewport.clientWidth;
-    state.position = viewport.clientWidth;
     state.velocity = initialSpeed;
     state.direction = direction;
     state.friction = friction;
     state.cardLineWidth = cardLine.scrollWidth || (CARD_WIDTH + cardGap) * cards.length;
+    state.position = direction === -1 ? viewport.clientWidth : -state.cardLineWidth;
     state.lastTime = performance.now();
 
     let renderer: THREE.WebGLRenderer | null = null;
@@ -278,28 +288,6 @@ export function ScannerCardStream({
       scannerParticles.push(createScannerParticle());
     }
 
-    const scrambleIntervals = new Set<number>();
-    const runScrambleEffect = (element: HTMLElement, cardId: number) => {
-      if (element.dataset.scrambling === "true") return;
-      element.dataset.scrambling = "true";
-      const originalText = originalAscii.current.get(cardId) ?? "";
-      let scrambleCount = 0;
-      const interval = window.setInterval(() => {
-        element.textContent = generateCode(
-          Math.floor(CARD_WIDTH / 6.5),
-          Math.floor(CARD_HEIGHT / 13),
-        );
-        scrambleCount += 1;
-        if (scrambleCount >= 10) {
-          window.clearInterval(interval);
-          scrambleIntervals.delete(interval);
-          element.textContent = originalText;
-          delete element.dataset.scrambling;
-        }
-      }, 30);
-      scrambleIntervals.add(interval);
-    };
-
     const updateCardEffects = () => {
       const viewportRect = viewport.getBoundingClientRect();
       const scannerX = viewportRect.left + viewportRect.width / 2;
@@ -308,37 +296,38 @@ export function ScannerCardStream({
       const scannerRight = scannerX + scannerWidth / 2;
       let anyCardIsScanning = false;
 
-      cardLine.querySelectorAll<HTMLElement>(".card-wrapper").forEach((wrapper, index) => {
+      cardLine.querySelectorAll<HTMLElement>(".card-wrapper").forEach((wrapper) => {
         const rect = wrapper.getBoundingClientRect();
-        const normalCard = wrapper.querySelector<HTMLElement>(".card-normal");
-        const asciiCard = wrapper.querySelector<HTMLElement>(".card-ascii");
-        const asciiContent = asciiCard?.querySelector<HTMLElement>("pre");
-        if (!normalCard || !asciiCard || !asciiContent || rect.width === 0) return;
+        const inputChip = wrapper.querySelector<HTMLElement>(".cpu-card-input");
+        const outputChip = wrapper.querySelector<HTMLElement>(".cpu-card-output");
+        if (!inputChip || !outputChip || rect.width === 0) return;
 
         if (rect.left < scannerRight && rect.right > scannerLeft) {
           anyCardIsScanning = true;
-          if (scanEffect === "scramble" && wrapper.dataset.scanned !== "true") {
-            runScrambleEffect(asciiContent, Number(wrapper.dataset.cardId ?? index));
-          }
           wrapper.dataset.scanned = "true";
           const intersectLeft = Math.max(scannerLeft - rect.left, 0);
           const intersectRight = Math.min(scannerRight - rect.left, rect.width);
-          normalCard.style.setProperty(
-            "--clip-right",
-            `${(intersectLeft / rect.width) * 100}%`,
-          );
-          asciiCard.style.setProperty(
-            "--clip-left",
-            `${(intersectRight / rect.width) * 100}%`,
-          );
+          const leftPercent = (intersectLeft / rect.width) * 100;
+          const rightPercent = (intersectRight / rect.width) * 100;
+
+          if (state.direction === -1) {
+            inputChip.style.clipPath = `inset(0 0 0 ${leftPercent}%)`;
+            outputChip.style.clipPath = `inset(0 ${100 - rightPercent}% 0 0)`;
+          } else {
+            inputChip.style.clipPath = `inset(0 ${100 - leftPercent}% 0 0)`;
+            outputChip.style.clipPath = `inset(0 0 0 ${rightPercent}%)`;
+          }
         } else {
           delete wrapper.dataset.scanned;
-          if (rect.right < scannerLeft) {
-            normalCard.style.setProperty("--clip-right", "100%");
-            asciiCard.style.setProperty("--clip-left", "100%");
+          const hasPassedScanner = state.direction === -1
+            ? rect.right < scannerLeft
+            : rect.left > scannerRight;
+          if (hasPassedScanner) {
+            inputChip.style.clipPath = "inset(0 100% 0 0)";
+            outputChip.style.clipPath = "inset(0 0 0 0)";
           } else {
-            normalCard.style.setProperty("--clip-right", "0%");
-            asciiCard.style.setProperty("--clip-left", "0%");
+            inputChip.style.clipPath = "inset(0 0 0 0)";
+            outputChip.style.clipPath = "inset(0 100% 0 0)";
           }
         }
       });
@@ -370,7 +359,11 @@ export function ScannerCardStream({
       state.lastMouseX = event.clientX;
       state.lastPointerTime = now;
       if (deltaX !== 0) {
-        state.direction = deltaX > 0 ? 1 : -1;
+        const nextDirection = deltaX > 0 ? 1 : -1;
+        if (state.direction !== nextDirection) {
+          state.direction = nextDirection;
+          setStreamDirection(nextDirection);
+        }
         state.velocity = Math.max(
           state.minVelocity,
           Math.min(Math.abs(deltaX / deltaTime), 600),
@@ -397,7 +390,11 @@ export function ScannerCardStream({
       if (delta === 0) return;
       event.preventDefault();
       state.position -= delta;
-      state.direction = delta > 0 ? -1 : 1;
+      const nextDirection = delta > 0 ? -1 : 1;
+      if (state.direction !== nextDirection) {
+        state.direction = nextDirection;
+        setStreamDirection(nextDirection);
+      }
       state.velocity = Math.max(state.minVelocity, Math.min(Math.abs(delta) * 8, 600));
     };
 
@@ -407,7 +404,11 @@ export function ScannerCardStream({
       const step = event.shiftKey ? CARD_WIDTH : 80;
       const movingRight = event.key === "ArrowLeft";
       state.position += movingRight ? step : -step;
-      state.direction = movingRight ? 1 : -1;
+      const nextDirection = movingRight ? 1 : -1;
+      if (state.direction !== nextDirection) {
+        state.direction = nextDirection;
+        setStreamDirection(nextDirection);
+      }
       state.velocity = Math.max(state.velocity, state.minVelocity);
     };
 
@@ -560,21 +561,22 @@ export function ScannerCardStream({
       window.removeEventListener("resize", resize);
       motionQuery.removeEventListener("change", handleMotionChange);
       animationControlRef.current = null;
-      scrambleIntervals.forEach((interval) => window.clearInterval(interval));
       geometry.dispose();
       material.dispose();
       texture.dispose();
       renderer?.dispose();
     };
-  }, [cards, cardGap, direction, friction, initialSpeed, scanEffect]);
+  }, [cards, cardGap, direction, friction, initialSpeed]);
 
   return (
     <div className="scanner-card-stream" data-paused={isPaused}>
       <div className="scanner-card-stream-toolbar">
         <div className="scanner-card-stream-legend" aria-hidden="true">
-          <span>MACOS-COMPATIBLE OUTPUT</span>
-          <span className="scanner-card-stream-legend-arrow">← WINE SCAN ←</span>
-          <span>WINDOWS APP INPUT</span>
+          <span>{streamDirection === 1 ? "WINDOWS · INTEL X86" : "APPLE SILICON · MACOS"}</span>
+          <span className="scanner-card-stream-legend-arrow">
+            {streamDirection === 1 ? "→ WINESHELF →" : "← WINESHELF ←"}
+          </span>
+          <span>{streamDirection === 1 ? "APPLE SILICON · MACOS" : "WINDOWS · INTEL X86"}</span>
         </div>
         <div className="scanner-card-stream-actions">
           {showSpeed && (
@@ -623,7 +625,7 @@ export function ScannerCardStream({
         ref={viewportRef}
         className="scanner-card-stream-viewport relative h-[360px] w-full overflow-hidden"
         role="region"
-        aria-label="Windows to macOS card scanner"
+        aria-label="Windows Intel processors transforming into Apple silicon with WineShelf"
       >
         <canvas
           ref={particleCanvasRef}
@@ -649,27 +651,19 @@ export function ScannerCardStream({
             className="scanner-card-line flex cursor-grab select-none items-center whitespace-nowrap will-change-transform"
             role="group"
             tabIndex={0}
-            aria-label="Moving cards. Drag or use the left and right arrow keys to change their direction."
+            aria-label="Moving processor chips. Drag or use the left and right arrow keys to change their direction."
             style={{ gap: `${cardGap}px` }}
           >
             {cards.map((card) => (
               <div
                 key={card.id}
-                data-card-id={card.id}
                 className="card-wrapper relative h-[250px] w-[400px] shrink-0"
               >
-                <div className="card-normal card absolute left-0 top-0 z-[2] h-full w-full overflow-hidden rounded-[15px] bg-transparent shadow-[0_15px_40px_rgba(0,0,0,0.4)]">
-                  <img
-                    src={card.image}
-                    alt=""
-                    draggable={false}
-                    className="h-full w-full rounded-[15px] object-cover brightness-110 contrast-110 transition-all duration-300 ease-in-out hover:brightness-125 hover:contrast-125"
-                  />
+                <div className="cpu-card-input absolute left-0 top-0 z-[2] h-full w-full overflow-hidden rounded-[15px] shadow-[0_15px_40px_rgba(0,0,0,0.4)]">
+                  <CpuChipFace platform="intel" model={card.input} />
                 </div>
-                <div className="card-ascii card absolute left-0 top-0 z-[1] h-full w-full overflow-hidden rounded-[15px] bg-transparent">
-                  <pre className="ascii-content animate-glitch absolute left-0 top-0 m-0 box-border h-full w-full overflow-hidden whitespace-pre p-0 text-left align-top font-mono text-[11px] leading-[13px] text-[rgba(220,210,255,0.6)]">
-                    {card.ascii}
-                  </pre>
+                <div className="cpu-card-output absolute left-0 top-0 z-[1] h-full w-full overflow-hidden rounded-[15px]">
+                  <CpuChipFace platform="apple" model={card.output} />
                 </div>
               </div>
             ))}

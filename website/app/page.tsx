@@ -137,7 +137,7 @@ export default function HomePage() {
             </span>{" "}
             <span>
               <i className="ribbon-mark mark-coral" aria-hidden="true"></i>{" "}
-              Managed Wine setup
+              WineShelf runtime setup
             </span>{" "}
             <span>
               <i className="ribbon-mark mark-white" aria-hidden="true"></i> Free
@@ -154,23 +154,24 @@ export default function HomePage() {
             <div className="translation-heading">
               <p className="eyebrow">
                 <span className="eyebrow-dot" aria-hidden="true" /> Windows
-                → macOS via Wine
+                → macOS with WineShelf
               </p>
               <h2 id="translation-title">
-                Windows in.
+                Intel in.
                 <br />
-                <span>Mac-compatible out.</span>
+                <span>Apple silicon out.</span>
               </h2>
               <p>
-                Wine keeps the app intact and maps the Windows interfaces it
-                expects onto macOS. Watch the scanner carry each card through
-                that compatibility layer.
+                WineShelf prepares the compatibility runtime for Windows apps
+                on macOS. Watch Intel processor chips pass through the scanner
+                and emerge as Apple silicon.
               </p>
             </div>
             <ScannerCardStream />
             <p className="translation-note">
-              A visual metaphor for API translation: Wine supplies Windows
-              behavior on macOS without rewriting the app’s source code.
+              The Intel-to-Apple chip change is a visual metaphor for
+              WineShelf’s Windows-to-macOS compatibility setup; it does not
+              represent a physical processor conversion.
             </p>
           </div>
         </section>
