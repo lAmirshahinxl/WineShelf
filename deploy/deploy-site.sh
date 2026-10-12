@@ -50,7 +50,7 @@ if [[ ! -d "$website_dir" ]]; then
   exit 1
 fi
 
-for command_name in rsync ssh; do
+for command_name in rsync ssh shasum cut sed cp mktemp grep; do
   if ! command -v "$command_name" >/dev/null 2>&1; then
     echo "Required command not found: $command_name" >&2
     exit 1
@@ -63,16 +63,31 @@ if ! ssh "${ssh_options[@]}" "$target" "test -d '$remote_path' && test -w '$remo
   exit 1
 fi
 
+staging_dir="$(mktemp -d "${TMPDIR:-/tmp}/wineshelf-site-deploy.XXXXXX")"
+trap 'rm -rf "$staging_dir"' EXIT
+cp -pR "$website_dir/." "$staging_dir/"
+
+css_hash="$(shasum -a 256 "$staging_dir/styles.css" | cut -c1-12)"
+stylesheet_placeholder='href="/styles.css?v=source"'
+if ! grep -Fq "$stylesheet_placeholder" "$staging_dir/index.html"; then
+  echo "Expected stylesheet placeholder was not found in website/index.html." >&2
+  exit 1
+fi
+
+sed "s|href=\"/styles\\.css?v=source\"|href=\"/styles.css?v=${css_hash}\"|" \
+  "$staging_dir/index.html" > "$staging_dir/index.html.tmp"
+mv "$staging_dir/index.html.tmp" "$staging_dir/index.html"
+
 rsync_options=(-rltz --checksum --human-readable)
 if (( dry_run )); then
   rsync_options+=(--dry-run --itemize-changes)
-  echo "Previewing website sync to $target:$remote_path"
+  echo "Previewing website sync to $target:$remote_path (stylesheet version $css_hash)"
 else
-  echo "Syncing website to $target:$remote_path"
+  echo "Syncing website to $target:$remote_path (stylesheet version $css_hash)"
 fi
 
 rsync "${rsync_options[@]}" -e 'ssh -o BatchMode=yes -o ConnectTimeout=10' -- \
-  "$website_dir/" "$target:$remote_path/"
+  "$staging_dir/" "$target:$remote_path/"
 
 if (( dry_run )); then
   echo "Dry run complete. No server files were changed."
