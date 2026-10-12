@@ -4,6 +4,10 @@ The website is a Next.js App Router project in this directory. It uses React
 components for the feature cards and game showcase and exports static files for
 the existing Nginx host.
 
+The active home page is `app/page.tsx`. The root `index.html` is retained as a
+reference to the previous static source; it is not included in the Next.js
+export or deployment.
+
 ## Requirements
 
 - Node.js 20.9 or later

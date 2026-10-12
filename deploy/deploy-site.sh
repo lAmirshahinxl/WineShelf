@@ -50,6 +50,11 @@ if [[ ! -d "$website_dir" ]]; then
   exit 1
 fi
 
+if [[ ! -f "$website_dir/package.json" || ! -f "$website_dir/package-lock.json" ]]; then
+  echo "Website package.json and package-lock.json are required for a reproducible build." >&2
+  exit 1
+fi
+
 for command_name in rsync ssh sed cp mktemp grep gh npm; do
   if ! command -v "$command_name" >/dev/null 2>&1; then
     echo "Required command not found: $command_name" >&2
@@ -64,15 +69,18 @@ if ! ssh "${ssh_options[@]}" "$target" "test -d '$remote_path' && test -w '$remo
 fi
 
 echo "Building the Next.js static export..."
+npm --prefix "$website_dir" ci --no-audit --no-fund
 npm --prefix "$website_dir" run build
-if [[ ! -f "$website_dir/out/index.html" ]]; then
-  echo "Next.js export did not create website/out/index.html." >&2
+if [[ ! -f "$website_dir/out/index.html" || ! -d "$website_dir/out/_next" ]]; then
+  echo "Next.js export did not create website/out/index.html and website/out/_next/." >&2
   exit 1
 fi
 
-staging_dir="$(mktemp -d "${TMPDIR:-/tmp}/wineshelf-site-deploy.XXXXXX")"
-release_dir="$(mktemp -d "${TMPDIR:-/tmp}/wineshelf-release-download.XXXXXX")"
-trap 'rm -rf "$staging_dir" "$release_dir"' EXIT
+work_dir="$(mktemp -d "${TMPDIR:-/tmp}/wineshelf-site-deploy.XXXXXX")"
+trap 'rm -rf -- "$work_dir"' EXIT
+staging_dir="$work_dir/site"
+release_dir="$work_dir/release"
+mkdir -p "$staging_dir" "$release_dir"
 cp -pR "$website_dir/out/." "$staging_dir/"
 
 release_repo="lAmirshahinxl/WineShelf"

@@ -1,7 +1,8 @@
 # Website deployment
 
-The deploy script builds the static Next.js export from `website/` and syncs
-the generated files to the Nginx document root configured for `wineshelf.site`.
+The deploy script installs the website dependencies from the committed npm lock
+file, builds the static Next.js export from `website/`, and syncs the generated
+files to the Nginx document root configured for `wineshelf.site`.
 It also downloads the latest universal DMG from the private GitHub repository
 and serves it at `/downloads/WineShelf-universal.dmg`, so visitors can download
 the app without GitHub access.
@@ -19,7 +20,8 @@ config alias or `user@origin-ip`. The SSH account must already have write
 access to `/var/www/wineshelf.site`, or to the directory selected with
 `WINESHELF_DEPLOY_PATH`. Install GitHub CLI and authenticate it with an account
 that can read the private WineShelf repository; the deploy script uses it to
-fetch the release DMG.
+fetch the release DMG. Node.js and npm must also be installed; deployment runs
+`npm ci` so the build uses the versions recorded in `website/package-lock.json`.
 
 ## Deploy
 
