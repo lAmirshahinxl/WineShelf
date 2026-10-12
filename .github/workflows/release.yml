@@ -24,14 +24,12 @@ jobs:
         run: |
           version="${GITHUB_REF_NAME#v}"
           asset="dist/WineShelf-$version-universal.dmg"
-          stable_asset="dist/WineShelf-universal.dmg"
-          cp "$asset" "$stable_asset"
           if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
             assets="$(gh release view "$GITHUB_REF_NAME" --json assets --jq '.assets[].name')"
             if grep -Fxq "WineShelf-$version-universal.zip" <<< "$assets"; then
               gh release delete-asset "$GITHUB_REF_NAME" "WineShelf-$version-universal.zip" --yes
             fi
-            gh release upload "$GITHUB_REF_NAME" "$asset" "$stable_asset" --clobber
+            gh release upload "$GITHUB_REF_NAME" "$asset" --clobber
             if [[ "$version" == *-* ]]; then
               gh release edit "$GITHUB_REF_NAME" \
                 --title "WineShelf $version" \
@@ -48,14 +46,12 @@ jobs:
             if [[ "$version" == *-* ]]; then
               gh release create "$GITHUB_REF_NAME" \
                 "$asset" \
-                "$stable_asset" \
                 --title "WineShelf $version" \
                 --notes-file .github/release-notes.md \
                 --prerelease
             else
               gh release create "$GITHUB_REF_NAME" \
                 "$asset" \
-                "$stable_asset" \
                 --title "WineShelf $version" \
                 --notes-file .github/release-notes.md \
                 --latest
