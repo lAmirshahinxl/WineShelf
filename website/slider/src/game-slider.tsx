@@ -2,6 +2,7 @@
 
 import { Pause, Play } from "lucide-react";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { TiltedGridHero, type TiltedGridImage } from "@/components/ui/tilted-grid-hero";
 
 const GAME_IMAGES: TiltedGridImage[] = [
@@ -31,7 +32,9 @@ export function GameSlider() {
           <p className="games-carousel-kicker">
             THE GAMES YOU WANT TO PLAY · POWERED BY WINESHELF
           </p>
-          <button
+          <Button
+            variant="outline"
+            size="sm"
             className="games-motion-control"
             type="button"
             aria-label={paused ? "Resume game showcase" : "Pause game showcase"}
@@ -40,7 +43,7 @@ export function GameSlider() {
           >
             {paused ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}
             <span>{paused ? "Resume" : "Pause"}</span>
-          </button>
+          </Button>
         </div>
         <p className="games-carousel-note">
           Counter-Strike 2 · Dota 2 · Call of Duty · Cyberpunk 2077 · Elden Ring · and more

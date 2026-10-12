@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { buttonVariants } from "@/components/ui/button";
 
 const DEG = Math.PI / 180;
 const RADIUS_FRAC = 0.38;
@@ -628,7 +629,11 @@ export function BurinHatch({
                 href={primaryCta.href}
                 data-cta="primary"
                 onClick={primaryCta.onClick}
-                className={"button button-primary " + ctaFocus}
+                className={buttonVariants({
+                  variant: "default",
+                  size: "lg",
+                  className: `hero-cta ${ctaFocus}`,
+                })}
               >
                 {primaryCta.label}
                 <span aria-hidden="true">↓</span>
@@ -638,7 +643,11 @@ export function BurinHatch({
                 type="button"
                 data-cta="primary"
                 onClick={primaryCta.onClick}
-                className={"button button-primary " + ctaFocus}
+                className={buttonVariants({
+                  variant: "default",
+                  size: "lg",
+                  className: `hero-cta ${ctaFocus}`,
+                })}
               >
                 {primaryCta.label}
                 <span aria-hidden="true">↓</span>
@@ -649,7 +658,11 @@ export function BurinHatch({
                 <a
                   href={secondaryCta.href}
                   onClick={secondaryCta.onClick}
-                  className={"button button-quiet " + ctaFocus}
+                  className={buttonVariants({
+                    variant: "outline",
+                    size: "lg",
+                    className: `hero-cta ${ctaFocus}`,
+                  })}
                 >
                   {secondaryCta.label}
                   <span aria-hidden="true">↗</span>
@@ -658,7 +671,11 @@ export function BurinHatch({
                 <button
                   type="button"
                   onClick={secondaryCta.onClick}
-                  className={"button button-quiet " + ctaFocus}
+                  className={buttonVariants({
+                    variant: "outline",
+                    size: "lg",
+                    className: `hero-cta ${ctaFocus}`,
+                  })}
                 >
                   {secondaryCta.label}
                   <span aria-hidden="true">↗</span>

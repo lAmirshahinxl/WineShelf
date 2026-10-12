@@ -1,4 +1,6 @@
 import type { CSSProperties } from "react";
+import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
 import BlockFeature from "../slider/src/components/ui/block-feature";
 import { GameSlider } from "../slider/src/game-slider";
 import { BurinHatch } from "@/components/ui/hero-burin-hatch";
@@ -36,7 +38,11 @@ export default function HomePage() {
             <a href="#compatibility">Compatibility</a>{" "}
           </nav>
           <a
-            className="header-download"
+            className={buttonVariants({
+              variant: "outline",
+              size: "sm",
+              className: "header-download",
+            })}
             href="/downloads/WineShelf-universal.dmg?v=source"
             download="WineShelf-universal.dmg"
           >
@@ -66,18 +72,18 @@ export default function HomePage() {
           {" "}
           <div className="ribbon-inner shell">
             {" "}
-            <span>
-              <i className="ribbon-mark mark-cyan" aria-hidden="true"></i>{" "}
+            <Badge variant="outline" className="ribbon-badge">
+              <i className="ribbon-mark mark-cyan" aria-hidden="true"></i>
               Native macOS app
-            </span>{" "}
-            <span>
-              <i className="ribbon-mark mark-coral" aria-hidden="true"></i>{" "}
+            </Badge>
+            <Badge variant="outline" className="ribbon-badge">
+              <i className="ribbon-mark mark-violet" aria-hidden="true"></i>
               WineShelf runtime setup
-            </span>{" "}
-            <span>
-              <i className="ribbon-mark mark-white" aria-hidden="true"></i> Free
-              and open source
-            </span>{" "}
+            </Badge>
+            <Badge variant="outline" className="ribbon-badge">
+              <i className="ribbon-mark mark-white" aria-hidden="true"></i>
+              Free and open source
+            </Badge>
           </div>{" "}
         </div>
         <section
@@ -732,7 +738,11 @@ export default function HomePage() {
             <div className="download-action">
               {" "}
               <a
-                className="button button-download"
+                className={buttonVariants({
+                  variant: "default",
+                  size: "lg",
+                  className: "button-download",
+                })}
                 href="/downloads/WineShelf-universal.dmg?v=source"
                 download="WineShelf-universal.dmg"
               >

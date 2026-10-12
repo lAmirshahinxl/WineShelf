@@ -11,16 +11,13 @@ import {
 import { IconBrandSteam } from "@tabler/icons-react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
-
-function Card({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
-  return <article className={cn("feature-card", className)}>{children}</article>;
-}
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 function CardHeading({
   icon,
@@ -34,16 +31,16 @@ function CardHeading({
   children: ReactNode;
 }) {
   return (
-    <div className="feature-card-copy">
-      <p className="feature-card-label">
+    <CardHeader className="feature-card-copy">
+      <Badge variant="outline" className="feature-card-label">
         <span className="feature-card-icon" aria-hidden="true">
           {icon}
         </span>
         {label}
-      </p>
-      <h3>{title}</h3>
-      <p>{children}</p>
-    </div>
+      </Badge>
+      <CardTitle>{title}</CardTitle>
+      <CardDescription>{children}</CardDescription>
+    </CardHeader>
   );
 }
 
@@ -62,7 +59,7 @@ function StatusRow({ children }: { children: ReactNode }) {
 export default function BlockFeature() {
   return (
     <div className={cn("feature-grid grid gap-5 md:grid-cols-2 lg:grid-cols-3")}>
-      <Card className="feature-card-runtime">
+      <Card className={cn("feature-card", "feature-card-runtime")}>
         <div className="runtime-visual" aria-hidden="true">
           <div className="visual-window-bar">
             <span className="window-dots"><i /><i /><i /></span>
@@ -91,7 +88,7 @@ export default function BlockFeature() {
         </CardHeading>
       </Card>
 
-      <Card className="feature-card-steam">
+      <Card className={cn("feature-card", "feature-card-steam")}>
         <div className="steam-visual" aria-hidden="true">
           <div className="steam-app-tile"><IconBrandSteam /></div>
           <div className="steam-visual-copy">
@@ -109,7 +106,7 @@ export default function BlockFeature() {
         </CardHeading>
       </Card>
 
-      <Card className="feature-card-exe">
+      <Card className={cn("feature-card", "feature-card-exe")}>
         <div className="exe-visual" aria-hidden="true">
           <div className="exe-file"><FileDown /><span>setup.exe</span></div>
           <span className="exe-arrow"><ArrowDownToLine /></span>
@@ -124,7 +121,7 @@ export default function BlockFeature() {
         </CardHeading>
       </Card>
 
-      <Card className="feature-card-library">
+      <Card className={cn("feature-card", "feature-card-library")}>
         <div className="library-visual" aria-hidden="true">
           <div className="library-visual-heading">
             <FolderOpen />
@@ -144,7 +141,7 @@ export default function BlockFeature() {
         </CardHeading>
       </Card>
 
-      <Card className="feature-card-controls">
+      <Card className={cn("feature-card", "feature-card-controls")}>
         <div className="controls-visual" aria-hidden="true">
           <div className="controls-heading"><SlidersHorizontal /><span>APP SETTINGS</span><span className="controls-menu">•••</span></div>
           <div className="controls-field">
@@ -166,7 +163,7 @@ export default function BlockFeature() {
         </CardHeading>
       </Card>
 
-      <Card className="feature-card-mac">
+      <Card className={cn("feature-card", "feature-card-mac")}>
         <div className="mac-visual" aria-hidden="true">
           <div className="mac-visual-heading"><Laptop /><span>MADE FOR MAC</span></div>
           <div className="mac-platform-row">

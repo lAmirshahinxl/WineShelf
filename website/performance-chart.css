@@ -202,6 +202,50 @@
   flex: 0 0 auto;
 }
 
+/* The chart follows the shared dark shadcn token system. */
+.performance-chart {
+  margin-bottom: 30px;
+  border-color: rgba(182, 176, 236, .16);
+  border-radius: 18px;
+  background: linear-gradient(145deg, #171a33 0%, #11142a 100%);
+  box-shadow: 0 18px 44px rgba(2, 3, 14, .22);
+}
+
+.fps-chart-kicker { color: #a0f1ec; }
+.fps-chart-caption h3 { color: #f3f4ff; }
+.fps-chart-caption p:last-child,
+.fps-chart-scale,
+.fps-chart-axis,
+.fps-axis-values,
+.fps-chart-legend { color: #aeb7d2; }
+.fps-chart-rows { border-color: rgba(182, 176, 236, .16); }
+.fps-chart-row { border-color: rgba(182, 176, 236, .1); }
+.fps-chart-game { color: #eff0ff; }
+.fps-track { border-color: rgba(182, 176, 236, .1); background-color: rgba(255, 255, 255, .045); }
+.fps-track { background-image: linear-gradient(to right,
+  transparent calc(25% - .5px), rgba(182, 176, 236, .12) calc(25% - .5px), rgba(182, 176, 236, .12) calc(25% + .5px), transparent calc(25% + .5px),
+  transparent calc(50% - .5px), rgba(182, 176, 236, .12) calc(50% - .5px), rgba(182, 176, 236, .12) calc(50% + .5px), transparent calc(50% + .5px),
+  transparent calc(75% - .5px), rgba(182, 176, 236, .12) calc(75% - .5px), rgba(182, 176, 236, .12) calc(75% + .5px), transparent calc(75% + .5px)); }
+.fps-fill { background: repeating-linear-gradient(90deg, #70e5df 0 8px, transparent 8px 11px); }
+.fps-fill.fps-point::after { border-color: #171a33; background: #a0f1ec; }
+.fps-range { background: repeating-linear-gradient(90deg, #ad9aff 0 8px, transparent 8px 11px); }
+.fps-range::before,
+.fps-range::after { background: #ad9aff; }
+.fps-chart-value { color: #a0f1ec; }
+.fps-chart-value small { color: #aeb7d2; }
+.fps-legend-fill { background: #70e5df; }
+.fps-legend-range { background: #ad9aff; }
+
+@media (max-width: 720px) {
+  .performance-chart { padding: 18px 16px 15px; }
+  .fps-chart-axis,
+  .fps-chart-row { grid-template-columns: minmax(95px, .9fr) minmax(90px, 2fr) minmax(70px, .75fr); gap: 8px; }
+  .fps-chart-game,
+  .fps-chart-value { font-size: 10px; }
+  .fps-chart-caption { gap: 12px; }
+  .fps-chart-scale { white-space: normal; text-align: right; }
+}
+
 .fps-legend-fill { background: #087b89; }
 .fps-legend-range { background: #d05e4b; }
 

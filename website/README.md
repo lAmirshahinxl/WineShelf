@@ -30,3 +30,12 @@ The export is written to `out/`. To preview it locally, serve that directory
 with any static file server. The repository deploy script builds this export,
 adds the latest WineShelf DMG, and syncs the result to the configured Nginx
 document root.
+
+## Design system
+
+The landing page uses a local shadcn/ui component layer for buttons, cards, and
+badges. Its component setup is in `components.json`; shared color and radius
+tokens are in `slider/src/index.css`, and site-wide composition and motion live
+in `styles.css`. UI components are stored in `slider/src/components/ui/` to
+match the existing import alias. Add further shadcn/ui components from this
+directory with `npx shadcn@latest add <component>`.
