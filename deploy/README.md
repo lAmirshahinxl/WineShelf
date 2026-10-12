@@ -35,8 +35,16 @@ Run the sync when the target looks right:
 ./deploy/deploy-site.sh
 ```
 
-The sync adds and overwrites files without deleting remote files. It generates
-content-hash URLs for the stylesheet and game carousel script, plus a
-release-versioned download URL in the deployed HTML, so browser and CDN caches
-fetch the matching files after an update. No SSH keys or server-specific target
-values belong in Git.
+The sync builds the React/TypeScript game showcase with Vite, adds and overwrites
+files without deleting remote files, and removes the slider source project from
+the public staging directory. It generates content-hash URLs for the page and
+slider stylesheets and script, plus a release-versioned download URL in the
+deployed HTML, so browser and CDN caches fetch the matching files after an
+update.
+
+The curved slider sets per-tile geometry at runtime. After a successful sync,
+the script updates the WineShelf Nginx Content Security Policy to allow inline
+styles for that geometry, validates the Nginx configuration, and reloads it.
+Scripts remain self-hosted and the script restores the prior config if Nginx
+validation fails. The SSH account needs passwordless sudo for this Nginx update.
+No SSH keys or server-specific target values belong in Git.

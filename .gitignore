@@ -6,3 +6,4 @@ dist/
 *.log
 *.xcuserstate
 /deploy/deploy-site.local
+/website/slider/node_modules/
