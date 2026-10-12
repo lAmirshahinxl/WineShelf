@@ -85,9 +85,15 @@ mkdir -p "$staging_dir/downloads"
 cp -p "$release_dir/$release_asset" "$staging_dir/downloads/WineShelf-universal.dmg"
 
 css_hash="$(shasum -a 256 "$staging_dir/styles.css" | cut -c1-12)"
+carousel_hash="$(shasum -a 256 "$staging_dir/game-carousel.js" | cut -c1-12)"
 stylesheet_placeholder='href="/styles.css?v=source"'
 if ! grep -Fq "$stylesheet_placeholder" "$staging_dir/index.html"; then
   echo "Expected stylesheet placeholder was not found in website/index.html." >&2
+  exit 1
+fi
+carousel_placeholder='src="/game-carousel.js?v=source"'
+if ! grep -Fq "$carousel_placeholder" "$staging_dir/index.html"; then
+  echo "Expected game carousel script placeholder was not found in website/index.html." >&2
   exit 1
 fi
 download_placeholder='href="/downloads/WineShelf-universal.dmg?v=source"'
@@ -98,6 +104,7 @@ fi
 
 sed \
   -e "s|href=\"/styles\\.css?v=source\"|href=\"/styles.css?v=${css_hash}\"|" \
+  -e "s|src=\"/game-carousel\\.js?v=source\"|src=\"/game-carousel.js?v=${carousel_hash}\"|" \
   -e "s|href=\"/downloads/WineShelf-universal\\.dmg?v=source\"|href=\"/downloads/WineShelf-universal.dmg?v=${release_tag}\"|" \
   "$staging_dir/index.html" > "$staging_dir/index.html.tmp"
 mv "$staging_dir/index.html.tmp" "$staging_dir/index.html"
@@ -105,9 +112,9 @@ mv "$staging_dir/index.html.tmp" "$staging_dir/index.html"
 rsync_options=(-rltz --checksum --human-readable)
 if (( dry_run )); then
   rsync_options+=(--dry-run --itemize-changes)
-  echo "Previewing website sync to $target:$remote_path (stylesheet $css_hash, WineShelf $release_tag)"
+  echo "Previewing website sync to $target:$remote_path (stylesheet $css_hash, carousel $carousel_hash, WineShelf $release_tag)"
 else
-  echo "Syncing website to $target:$remote_path (stylesheet $css_hash, WineShelf $release_tag)"
+  echo "Syncing website to $target:$remote_path (stylesheet $css_hash, carousel $carousel_hash, WineShelf $release_tag)"
 fi
 
 rsync "${rsync_options[@]}" -e 'ssh -o BatchMode=yes -o ConnectTimeout=10' -- \
