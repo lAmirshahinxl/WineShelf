@@ -1024,3 +1024,90 @@ h1 span,
     min-height: 300px;
   }
 }
+
+/* Square game covers sit on the rotating globe surface. */
+.hero-burin-home .hero-copy {
+  position: relative;
+  z-index: 1;
+  max-width: 570px;
+  padding-block: 22px;
+}
+
+.hero-burin-home .hero-copy .eyebrow { margin-bottom: 19px; }
+
+.hero-burin-home .hero-copy h1 {
+  max-width: 600px;
+  margin-bottom: 0;
+  color: var(--paper);
+  line-height: 1.02;
+}
+
+.hero-burin-home .hero-copy h1 .hero-title-primary { color: var(--paper); }
+.hero-burin-home .hero-copy h1 .hero-title-accent { color: var(--cyan); }
+.hero-burin-home .hero-copy h1 .hero-title-primary,
+.hero-burin-home .hero-copy h1 .hero-title-accent { display: block; }
+
+.hero-burin-home .hero-copy .hero-description {
+  max-width: 490px;
+  margin: 21px 0 0;
+  color: #c4d5e1;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.hero-burin-home .hero-copy .hero-actions { gap: 12px; margin-top: 27px; }
+.hero-burin-home .hero-copy .button { min-height: 52px; border-radius: 7px; }
+
+.hero-burin-home .hero-planet-stage {
+  position: relative;
+  width: min(100%, 620px);
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 1;
+  justify-self: center;
+}
+
+.hero-planet-stage canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.planet-game-surface {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+  width: 76%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(83, 242, 238, .4);
+  border-radius: 50%;
+  box-shadow: inset 0 0 28px rgba(0, 211, 220, .1), 0 0 36px rgba(0, 211, 220, .09);
+}
+
+.planet-game-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.planet-game-shading {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse at 34% 27%, rgba(83, 242, 238, .08), transparent 38%),
+    radial-gradient(ellipse at center, transparent 43%, rgba(2, 9, 22, .4) 100%),
+    linear-gradient(90deg, rgba(2, 9, 22, .25), transparent 25%, transparent 75%, rgba(2, 9, 22, .2));
+  box-shadow: inset 0 0 38px rgba(1, 8, 20, .48);
+  pointer-events: none;
+}
+
+@media (max-width: 720px) {
+  .hero-burin-home .hero-planet-stage { width: min(100%, 430px); }
+}
