@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import type { ReactNode } from "react";
 import { preload } from "react-dom";
 import "../styles.css";
@@ -7,6 +8,9 @@ import "../slider/src/index.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://wineshelf.site"),
+  verification: {
+    google: "sjxPcDAiGoMYqedFGo4xssraqgpqEvLDnJVNDK2VnfM",
+  },
   title: "WineShelf — Your Windows games, at home on Mac",
   description:
     "WineShelf prepares Wine for macOS, guides Steam and Windows app setup, and keeps games and launch options in one library.",
@@ -44,6 +48,8 @@ const gameBannerImages = [
   "apex-legends.jpg",
 ];
 
+const googleAnalyticsId = "G-SY484H8QFC";
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
@@ -53,7 +59,19 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {children}
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+function gtag(){window.dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', '${googleAnalyticsId}');`}
+        </Script>
+      </body>
     </html>
   );
 }
