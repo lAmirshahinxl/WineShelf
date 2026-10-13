@@ -1,6 +1,6 @@
 import Foundation
 
-enum GameStorefront: String, CaseIterable, Hashable, Identifiable, Sendable {
+enum GameStorefront: String, CaseIterable, Codable, Hashable, Identifiable, Sendable {
     case steam
     case battleNet
 
@@ -23,7 +23,7 @@ enum GameStorefront: String, CaseIterable, Hashable, Identifiable, Sendable {
     }
 }
 
-struct GameCompatibilityProfile: Identifiable, Hashable, Sendable {
+struct GameCompatibilityProfile: Codable, Identifiable, Hashable, Sendable {
     let id: String
     let appID: String?
     let name: String
@@ -56,7 +56,8 @@ struct GameCompatibilityProfile: Identifiable, Hashable, Sendable {
 }
 
 enum SteamGameCatalog {
-    static let directoryURL = URL(string: "https://www.gametomac.com/games")!
+    static let directoryURL = URL(string: "https://wineshelf.site/games/")!
+    static let feedURL = URL(string: "https://wineshelf.site/game-profiles.json")!
 
     static let games: [GameCompatibilityProfile] = [
         GameCompatibilityProfile(

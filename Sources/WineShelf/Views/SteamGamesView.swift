@@ -14,6 +14,7 @@ struct SteamGamesView: View {
     let onSetUpStore: (SteamGame, GameStorefront) -> Void
 
     @StateObject private var store = SteamGameStoreModel()
+    @StateObject private var catalog = GameProfileCatalogStore.shared
     @State private var searchText = ""
     @State private var selectedGameID = "counter-strike-2"
     @State private var selectedStorefrontID = GameStorefront.steam.rawValue
@@ -23,8 +24,8 @@ struct SteamGamesView: View {
 
     private var matchingGames: [SteamGame] {
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !query.isEmpty else { return SteamGameCatalog.games }
-        return SteamGameCatalog.games.filter {
+        guard !query.isEmpty else { return catalog.games }
+        return catalog.games.filter {
             $0.name.localizedCaseInsensitiveContains(query) || $0.genre.localizedCaseInsensitiveContains(query) || $0.edition.localizedCaseInsensitiveContains(query) || $0.storefronts.contains { $0.name.localizedCaseInsensitiveContains(query) }
         }
     }
@@ -86,11 +87,12 @@ struct SteamGamesView: View {
         }
         .frame(minWidth: 760, minHeight: 620)
         .task {
-            await store.load(SteamGameCatalog.games)
-            library.refreshPendingSteamGameInstalls(SteamGameCatalog.steamGames)
+            await catalog.load()
+            await store.load(catalog.games)
+            library.refreshGameProfiles(catalog.games)
         }
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
-            library.refreshPendingSteamGameInstalls(SteamGameCatalog.steamGames)
+            library.refreshPendingSteamGameInstalls(catalog.games.filter { $0.appID != nil })
             installationStateRevision += 1
         }
         .onChange(of: listedGames.map(\.id)) { _, gameIDs in
@@ -99,7 +101,7 @@ struct SteamGamesView: View {
             }
         }
         .onChange(of: selectedGameID) { _, gameID in
-            selectedStorefrontID = SteamGameCatalog.games.first(where: { $0.id == gameID })?.storefronts.first?.rawValue ?? GameStorefront.steam.rawValue
+            selectedStorefrontID = catalog.games.first(where: { $0.id == gameID })?.storefronts.first?.rawValue ?? GameStorefront.steam.rawValue
             installationStateRevision += 1
         }
         .accessibilityIdentifier("game-profiles-page")
@@ -115,16 +117,23 @@ struct SteamGamesView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Mac Game Profiles")
                     .font(.title2.weight(.semibold))
-                Text("Edition-specific setup, requirements, and play limits for 21 games.")
+                Text("Edition-specific setup, requirements, and play limits for \(catalog.games.count) games.")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+                Text(catalog.isUsingWebsiteCatalog
+                    ? "Synced from wineshelf.site"
+                    : catalog.loadError == nil
+                        ? "Using the included catalog"
+                        : "Website list unavailable · using the included catalog")
+                    .font(.caption2)
+                    .foregroundStyle(catalog.isUsingWebsiteCatalog ? Color.accentColor : Color.secondary)
             }
             Spacer(minLength: 12)
-            Button("GameToMac Directory", systemImage: "arrow.up.right") {
+            Button("WineShelf Game Directory", systemImage: "arrow.up.right") {
                 NSWorkspace.shared.open(SteamGameCatalog.directoryURL)
             }
             .buttonStyle(.bordered)
-            .help("View the source directory for these compatibility profiles")
+            .help("Browse the game profiles on wineshelf.site")
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 17)

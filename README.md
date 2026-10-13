@@ -21,7 +21,7 @@ WineShelf is a native macOS app for managing Wine runtimes, Steam, Windows games
 | | Feature | What it does |
 | --- | --- | --- |
 | 🍷 | Managed Wine setup | Checks requirements, downloads a pinned Wine build, and verifies its SHA-256 digest. |
-| 🎮 | Game Profiles | Browse 21 edition-specific guides based on GameToMac, grouped by native Mac support and Steam popularity with storefront, account, requirements, and setup information. |
+| 🎮 | Game Profiles | Browse edition-specific guides based on the WineShelf website catalog, grouped by native Mac support and Steam popularity with storefront, account, requirements, and setup information. |
 | 🚀 | **Run a Windows `.exe` directly** | **Choose or drag an executable into WineShelf; it prepares a Wine prefix, launches the file, and saves it in your library.** |
 | 📚 | One game library | Keeps Steam game shortcuts and Windows apps together with their Wine prefixes and settings. |
 | 🧰 | Session controls | Start or stop Wine sessions, open logs, and reveal app and prefix files in Finder. |
@@ -82,7 +82,7 @@ For custom configurations, choose **Add Windows App** and select the executable,
 
 ## 🎮 Browse game profiles
 
-Choose **Game Profiles** in the sidebar to browse 21 profiles based on GameToMac's public directory. WineShelf groups games without a native macOS version first, then popular Steam games with native Mac versions. Select a title to see its supported edition, storefronts, account requirements, system requirements, known limitations, and setup guide.
+Choose **Game Profiles** in the sidebar to browse the game catalog published on [wineshelf.site](https://wineshelf.site/games/). WineShelf downloads the profile list from the website when you open the page and keeps its included profiles available when you are offline. WineShelf groups games without a native macOS version first, then popular Steam games with native Mac versions. Select a title to see its supported edition, storefronts, account requirements, system requirements, known limitations, and setup guide.
 
 For Steam games, WineShelf opens the title's store page inside its Wine Steam prefix so you can check edition access and start the install. After Steam confirms the game is fully installed, WineShelf adds a launch shortcut to your library. If you close Steam before the download finishes, the game stays pending and does not appear as installed. **WineShelf does not guarantee compatibility:** game-specific launchers, anti-cheat, DRM, Wine, and Mac hardware affect whether a game runs.
 
@@ -107,7 +107,7 @@ Requirements: macOS 14 or later and Xcode Command Line Tools with Swift 6.
 The build script creates a universal `WineShelf.app`, generates the macOS icon from `Assets/Branding/WineShelf-Logo-2026.png`, and packages it with an Applications shortcut:
 
 ```text
-dist/WineShelf-0.5.0-universal.dmg
+dist/WineShelf-0.5.1-universal.dmg
 ```
 
 Local builds are ad-hoc signed by default. For direct distribution, sign with a **Developer ID Application** identity and notarize the app and disk image with Apple's notary service. Set `CODESIGN_IDENTITY` to the identity's full name to enable hardened runtime and secure timestamps.

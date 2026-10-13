@@ -307,9 +307,10 @@ private struct GameDetailView: View {
 
     @State private var isShowingStopConfirmation = false
     @StateObject private var artworkStore = SteamGameStoreModel()
+    @ObservedObject private var profileCatalog = GameProfileCatalogStore.shared
 
     private var catalogGame: SteamGame? {
-        SteamGameCatalog.game(named: entry.name)
+        profileCatalog.game(named: entry.name)
     }
 
     var body: some View {

@@ -1,4 +1,6 @@
-This release adds **Game Profiles**, a guide catalog based on GameToMac's public game directory. Each profile covers the supported edition and storefront, account requirements, known limitations, system requirements, and setup guidance. Steam titles include store artwork and current popularity ordering.
+WineShelf now loads its **Game Profiles** catalog from the public [WineShelf game directory](https://wineshelf.site/games/). The app refreshes the list when you open Game Profiles, so catalog updates on the website can reach the app without another app release. The built-in profiles remain available when you are offline.
+
+The website publishes the same game data as a static JSON feed at [wineshelf.site/game-profiles.json](https://wineshelf.site/game-profiles.json). The directory includes supported editions and storefronts, account requirements, macOS requirements, known limitations, and setup guides.
 
 Steam profiles now open the title's store page inside Wine Steam so you can confirm that your account owns the selected edition before installing. WineShelf tracks the install and adds a library shortcut after Steam reports the game is fully installed. It also removes stale shortcuts when a game is no longer installed. Battle.net profiles link to Blizzard's Windows installer and explain the manual WineShelf setup steps.
 

@@ -4,7 +4,7 @@ set -euo pipefail
 project_dir="$(cd "$(dirname "$0")" && pwd)"
 cd "$project_dir"
 
-app_version="${APP_VERSION:-0.2.0}"
+app_version="${APP_VERSION:-0.5.1}"
 short_version="${app_version%%-*}"
 build_number="${BUILD_NUMBER:-1}"
 signing_identity="${CODESIGN_IDENTITY:--}"
@@ -18,7 +18,7 @@ build_temp="$(mktemp -d "${TMPDIR:-/tmp}/wineshelf-build.XXXXXX")"
 trap 'rm -rf "$build_temp"' EXIT
 
 if [[ ! "$app_version" =~ ^[0-9]+(\.[0-9]+){1,2}(-[A-Za-z0-9.]+)?$ ]]; then
-    echo "APP_VERSION must be a dotted version such as 0.2.0 or 0.2.0-beta.1" >&2
+    echo "APP_VERSION must be a dotted version such as 0.5.1 or 0.5.1-beta.1" >&2
     exit 1
 fi
 

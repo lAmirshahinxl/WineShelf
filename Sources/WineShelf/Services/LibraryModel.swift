@@ -129,6 +129,11 @@ final class LibraryModel: ObservableObject {
         }
     }
 
+    func refreshGameProfiles(_ games: [SteamGame]) {
+        removeUninstalledSteamGameShortcuts()
+        refreshPendingSteamGameInstalls(games.filter { $0.appID != nil })
+    }
+
     func openSteamGamePage(_ game: SteamGame) {
         guard let appID = game.appID else {
             errorMessage = "This profile does not have a Steam app ID. Choose its listed storefront instead."
@@ -323,7 +328,7 @@ final class LibraryModel: ObservableObject {
                   entry.prefixPath == steamEntry.prefixPath,
                   entry.arguments.count == 2,
                   entry.arguments[0] == "-applaunch",
-                  let game = SteamGameCatalog.game(appID: entry.arguments[1]),
+                  let game = GameProfileCatalogStore.shared.game(appID: entry.arguments[1]),
                   !isSteamGameInstalled(game) else {
                 return nil
             }
