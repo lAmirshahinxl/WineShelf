@@ -1,5 +1,0 @@
-# Copy this file to deploy-site.local and set an SSH alias that reaches the
-# server origin directly. The public site hostname is behind Cloudflare and
-# usually cannot be used for SSH.
-WINESHELF_DEPLOY_TARGET="your-ssh-alias-or-user@origin-ip"
-WINESHELF_DEPLOY_PATH="/var/www/wineshelf.site"
